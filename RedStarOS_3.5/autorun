@@ -10,6 +10,6 @@ if [ "$(id -u)" == 0 ]; then
 kdialog --title "Root permission grant success! " --error "OS Optimization Process Will Now Begin. "
 cp '/media/RedStarOS_3.5/RedStar/optimize.sh' '/root/Desktop/Redstar Optimize.sh' -fd
 chmod +x '/root/Desktop/Redstar Optimize.sh'
-konsole -e bash -c '/root/Desktop/Redstar\ Optimize.sh'
+konsole -e script -f -c 'set -x; /root/Desktop/Redstar\ Optimize.sh' /root/Desktop/Redstar\ Optimize\ Log.txt
 rm -f '/root/Desktop/Redstar Optimize.sh'
 fi

@@ -516,7 +516,7 @@ set -x
 echo "[Desktop Entry]" > '/root/Desktop/v3.5 Update Combo/scripts/next.desktop' || return 1
 echo "Encoding=UTF-8" >> '/root/Desktop/v3.5 Update Combo/scripts/next.desktop' || return 1
 echo "Type=Application" >> '/root/Desktop/v3.5 Update Combo/scripts/next.desktop' || return 1
-echo "Exec=konsole -e bash -c \"cd /root/Desktop/v3.5\ Update\ Combo; ./scripts/${1}.sh\"" >> '/root/Desktop/v3.5 Update Combo/scripts/next.desktop' || return 1
+echo "Exec=konsole -e script -f -c 'set -x; xterm -e \"set -x; tail -F /root/Desktop/v3.5\\\\ Update\\\\ Combo/logs/Stage${1}.txt\"& cd /root/Desktop/v3.5\ Update\ Combo; ./scripts/${1}.sh' /root/Desktop/v3.5\ Update\ Combo/logs/Stage${1}.txt" >> '/root/Desktop/v3.5 Update Combo/scripts/next.desktop' || return 1
 echo "Terminal=false" >> '/root/Desktop/v3.5 Update Combo/scripts/next.desktop' || return 1
 echo "Name=v3.5 Update Combo" >> '/root/Desktop/v3.5 Update Combo/scripts/next.desktop' || return 1
 echo "Categories=Applocation" >> '/root/Desktop/v3.5 Update Combo/scripts/next.desktop' || return 1

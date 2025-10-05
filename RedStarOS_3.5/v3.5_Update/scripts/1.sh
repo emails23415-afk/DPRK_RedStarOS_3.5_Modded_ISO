@@ -114,6 +114,20 @@ CustomInstall glibc-2.23 xz "For Cross-x86_64 (Bootstrap Stage 1)" "W0RK" \
 --enable-shared --enable-profile --enable-obsolete-rpc --disable-werror" \
 "nop" \
 "make install-headers install-bootstrap-headers=yes"
+CustomInstall glibc-2.23 xz "For Cross-x86_64 (Bootstrap Stage 1)" "W0RK" \
+"../configure --prefix=/opt/Cross64/x86_64-pc-linux-gnu --mandir=/opt/Cross64/x86_64-pc-linux-gnu/share/man --infodir=/opt/Cross64/x86_64-pc-linux-gnu/share/info \
+--host=x86_64-pc-linux-gnu --build=i386-pc-linux-gnu --with-sysroot=/opt/Cross64/x86_64-pc-linux-gnu \
+--with-headers=/opt/Cross64/x86_64-pc-linux-gnu/include --includedir=/opt/Cross64/x86_64-pc-linux-gnu/include \
+--enable-shared --enable-profile --enable-obsolete-rpc --disable-werror" \
+"nop" \
+"make install-headers install-bootstrap-headers=yes"
+CustomInstall glibc-2.23 xz "For Cross-x86_64 (Bootstrap Stage 2)" "W0RK" \
+"../configure --prefix=/opt/Cross64 --mandir=/opt/Cross64/x86_64-pc-linux-gnu/share/man --infodir=/opt/Cross64/x86_64-pc-linux-gnu/share/info \
+--host=x86_64-pc-linux-gnu --build=i386-pc-linux-gnu --with-sysroot=/opt/Cross64/x86_64-pc-linux-gnu \
+--with-headers=/opt/Cross64/x86_64-pc-linux-gnu/include --includedir=/opt/Cross64/x86_64-pc-linux-gnu/include \
+--enable-shared --enable-profile --enable-obsolete-rpc --disable-werror" \
+"make csu/subdir_lib -j$(grep -c ^processor /proc/cpuinfo)" \
+"install csu/crt1.o csu/crti.o csu/crtn.o /opt/Cross64/x86_64-pc-linux-gnu/lib"
 CustomInstall glibc-2.23 xz "For Cross-x86_64 (Bootstrap Stage 2)" "W0RK" \
 "../configure --prefix=/opt/Cross64/x86_64-pc-linux-gnu --mandir=/opt/Cross64/x86_64-pc-linux-gnu/share/man --infodir=/opt/Cross64/x86_64-pc-linux-gnu/share/info \
 --host=x86_64-pc-linux-gnu --build=i386-pc-linux-gnu --with-sysroot=/opt/Cross64/x86_64-pc-linux-gnu \
@@ -146,17 +160,17 @@ CustomInstall gcc-6.5.0 xz "For Cross-x86_64 (Bootstrap Stage 4)" "W0RK" \
 --enable-__cxa_atexit --disable-libunwind-exceptions --with-tune=generic \
 --enable-languages=c,c++,objc,obj-c++ \
 --disable-shared --enable-host-shared \
---enable-libada --disable-libatomic --enable-libbacktrace --enable-libcc1 --disable-libcilkrts --enable-libcpp \
+--enable-libada --enable-libatomic --enable-libbacktrace --enable-libcc1 --enable-libcilkrts --enable-libcpp \
 --enable-libdecnumber --enable-libffi --enable-libgcc --enable-libgfortran --enable-libgo --disable-libgomp \
---enable-libiberty --disable-libitm --enable-libjava --disable-libmpx --enable-libobjc --disable-libsanitizer \
---enable-libquadmath --enable-libssp --enable-libstdc++-v3 --enable-libcxx --disable-libvtv --enable-libquadmath-support \
+--enable-libiberty --enable-libitm --enable-libjava --enable-libmpx --enable-libobjc --enable-libsanitizer \
+--enable-libquadmath --enable-libssp --enable-libstdc++-v3 --enable-libcxx --enable-libvtv --enable-libquadmath-support \
 --enable-libgcj --enable-static-libjava=unicows --enable-lto --enable-tls --enable-objc-gc --enable-vtable-verify" \
-"make all-target -j$(grep -c ^processor /proc/cpuinfo)" \
+"make all-target -j1" \
 "make install-target"
 export CFLAGS="-O2 -g -fno-common"
 export CXXFLAGS="-O2 -g -fno-common"
 CustomInstall glibc-2.23 xz "For Cross-x86_64" "W0RK" \
-"../configure --prefix=/opt/Cross64 --mandir=/opt/Cross64/x86_64-pc-linux-gnu/share/man --infodir=/opt/Cross64/x86_64-pc-linux-gnu/share/info \
+"../configure --prefix=/opt/Cross64/x86_64-pc-linux-gnu --mandir=/opt/Cross64/x86_64-pc-linux-gnu/share/man --infodir=/opt/Cross64/x86_64-pc-linux-gnu/share/info \
 --host=x86_64-pc-linux-gnu --build=i386-pc-linux-gnu --with-sysroot=/opt/Cross64/x86_64-pc-linux-gnu \
 --with-headers=/opt/Cross64/x86_64-pc-linux-gnu/include --includedir=/opt/Cross64/x86_64-pc-linux-gnu/include \
 --enable-shared --enable-profile --enable-obsolete-rpc --disable-werror" \
