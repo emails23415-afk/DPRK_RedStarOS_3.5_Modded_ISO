@@ -151,7 +151,7 @@ CustomInstall gcc-6.5.0 xz "For Cross-x86_64 (Bootstrap Stage 3)" "W0RK" \
 "make install-target-libgcc"
 CustomInstall gcc-6.5.0 xz "For Cross-x86_64 (Bootstrap Stage 4)" "W0RK" \
 "sed -i 's/as_fn_error \"Link tests are not allowed after GCC_NO_EXECUTABLES.\" \"\$LINENO\" 5/echo Defused Error: \\\\\"Link tests are not allowed after GCC_NO_EXECUTABLES.\\\\\"/g' \
-/workspace/gcc-6.5.0/libssp/configure /workspace/gcc-6.5.0/libstdc++-v3/configure /workspace/gcc-6.5.0/libquadmath/configure /workspace/gcc-6.5.0/boehm-gc/configure /workspace/gcc-6.5.0/libobjc/configure || return 1; \
+/workspace/gcc-6.5.0/libssp/configure /workspace/gcc-6.5.0/libquadmath/configure || return 1; \
 ../configure --target=x86_64-pc-linux-gnu --prefix=/opt/Cross64 \
 --mandir=/opt/Cross64/x86_64-pc-linux-gnu/share/man --infodir=/opt/Cross64/x86_64-pc-linux-gnu/share/info \
 --with-sysroot=/opt/Cross64/x86_64-pc-linux-gnu --with-headers=/opt/Cross64/x86_64-pc-linux-gnu/include --includedir=/opt/Cross64/x86_64-pc-linux-gnu/include \
@@ -161,11 +161,11 @@ CustomInstall gcc-6.5.0 xz "For Cross-x86_64 (Bootstrap Stage 4)" "W0RK" \
 --enable-languages=c,c++,objc,obj-c++ \
 --disable-shared --enable-host-shared \
 --enable-libada --enable-libatomic --enable-libbacktrace --enable-libcc1 --enable-libcilkrts --enable-libcpp \
---enable-libdecnumber --enable-libffi --enable-libgcc --enable-libgfortran --enable-libgo --disable-libgomp \
+--enable-libdecnumber --enable-libffi --enable-libgcc --enable-libgfortran --enable-libgo --enable-libgomp \
 --enable-libiberty --enable-libitm --enable-libjava --enable-libmpx --enable-libobjc --enable-libsanitizer \
 --enable-libquadmath --enable-libssp --enable-libstdc++-v3 --enable-libcxx --enable-libvtv --enable-libquadmath-support \
 --enable-libgcj --enable-static-libjava=unicows --enable-lto --enable-tls --enable-objc-gc --enable-vtable-verify" \
-"make all-target -j1" \
+"make all-target -j$(grep -c ^processor /proc/cpuinfo)" \
 "make install-target"
 export CFLAGS="-O2 -g -fno-common"
 export CXXFLAGS="-O2 -g -fno-common"
