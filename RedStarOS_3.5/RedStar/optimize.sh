@@ -38,6 +38,7 @@ cp '/media/RedStarOS_3.5/repodata/vmtools.tar.gz' '/root/Desktop/VMwareTools/vmt
 cp '/media/RedStarOS_3.5/repodata/vmtoolsinst' '/root/Desktop/VMwareTools/Install.desktop' -fd
 cp '/media/RedStarOS_3.5/v3.5_Update' '/root/Desktop/v3.5 Update Combo/' -rfdT
 mkdir /root/Desktop/v3.5\ Update\ Combo/logs
+yum install xterm -y
 killall -9 -e artsd
 set +x
 title "Optimization Completed! "
