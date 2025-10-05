@@ -1,13 +1,12 @@
 #!/bin/bash
 if [ "$(id -u)" != 0 ]; then
-kdialog --title "Permission Denied! " --error "This OS optimization script need root privileges to run. "
-[ ! -d '/Applications/SGOffice.app' ] && kdialog --title "Error! " --error "Sogwang Office is required to display the root tutorial! Ignore this if you already know what to do. "
-cp -f /media/RedStarOS_3.5/RootTutorial.rtf ~/RootTutorial.rtf
+kdialog --title "Permission Denied! " --error "This OS optimization script requires root privileges to run. "
+[ ! -d '/Applications/Naenara.app' ] && kdialog --title "Error! " --error "Naenara Web Browser is required to display the root tutorial! Ignore this if you already know what to do. "
+/Applications/Naenara.app/Contents/RedStar/naenara /media/RedStarOS_3.5/RootTutorial.html
 rootsetting
-/Applications/SGOffice.app/Contents/RedStar/soffice ~/RootTutorial.rtf
 fi
 if [ "$(id -u)" == 0 ]; then
-kdialog --title "Root permission grant success! " --error "OS Optimization Process Will Now Begin. "
+kdialog --title "Root permission grant success! " --error "The OS optimization process will now begin. "
 cp '/media/RedStarOS_3.5/RedStar/optimize.sh' '/root/Desktop/Redstar Optimize.sh' -fd
 chmod +x '/root/Desktop/Redstar Optimize.sh'
 konsole -e script -f -c 'set -x; /root/Desktop/Redstar\ Optimize.sh' /root/Desktop/Redstar\ Optimize\ Log.txt
