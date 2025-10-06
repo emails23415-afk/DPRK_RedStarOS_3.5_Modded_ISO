@@ -126,7 +126,7 @@ CustomInstall glibc-2.23 xz "For Cross-x86_64 (Bootstrap Stage 1)" "W0RK" \
 --enable-shared --enable-profile --enable-multi-arch --enable-obsolete-rpc --disable-werror" \
 "nop" \
 "make install-headers install-bootstrap-headers=yes"
-CustomInstall glibc-2.23 xz "For Cross-x86_64 (Bootstrap Stage 2)" "W0RK" \
+CustomInstall glibc-2.23 xz "For Cross-x86_64 (Bootstrap Stage 1)" "W0RK" \
 "../configure --prefix=/opt/Cross64/x86_64-pc-linux-gnu --mandir=/opt/Cross64/x86_64-pc-linux-gnu/share/man --infodir=/opt/Cross64/x86_64-pc-linux-gnu/share/info \
 --host=x86_64-pc-linux-gnu --with-sysroot=/opt/Cross64/x86_64-pc-linux-gnu \
 --with-headers=/opt/Cross64/x86_64-pc-linux-gnu/include --includedir=/opt/Cross64/x86_64-pc-linux-gnu/include \
@@ -134,7 +134,7 @@ CustomInstall glibc-2.23 xz "For Cross-x86_64 (Bootstrap Stage 2)" "W0RK" \
 "make csu/subdir_lib -j$(grep -c ^processor /proc/cpuinfo)" \
 "install csu/crt1.o csu/crti.o csu/crtn.o /opt/Cross64/x86_64-pc-linux-gnu/lib"
 touch /opt/Cross64/x86_64-pc-linux-gnu/include/gnu/stubs.h
-CustomInstall gcc-6.5.0 xz "For Cross-x86_64 (Bootstrap Stage 3)" "W0RK" \
+CustomInstall gcc-6.5.0 xz "For Cross-x86_64 (Bootstrap Stage 2)" "W0RK" \
 "../configure --target=x86_64-pc-linux-gnu --prefix=/opt/Cross64 \
 --mandir=/opt/Cross64/x86_64-pc-linux-gnu/share/man --infodir=/opt/Cross64/x86_64-pc-linux-gnu/share/info \
 --with-sysroot=/opt/Cross64/x86_64-pc-linux-gnu --with-headers=/opt/Cross64/x86_64-pc-linux-gnu/include --includedir=/opt/Cross64/x86_64-pc-linux-gnu/include \
@@ -150,7 +150,7 @@ CustomInstall gcc-6.5.0 xz "For Cross-x86_64 (Bootstrap Stage 3)" "W0RK" \
 --enable-libgcj --enable-static-libjava=unicows --enable-lto --enable-tls --enable-objc-gc --enable-vtable-verify" \
 "make all-target-libgcc -j$(grep -c ^processor /proc/cpuinfo)" \
 "make install-target-libgcc"
-CustomInstall gcc-6.5.0 xz "For Cross-x86_64 (Bootstrap Stage 4)" "W0RK" \
+CustomInstall gcc-6.5.0 xz "For Cross-x86_64 (Bootstrap Stage 3)" "W0RK" \
 "Extract gmp-4.3.2 bz2; \
 Extract mpfr-2.4.2 bz2; \
 Extract mpc-0.8.1 gz; \
@@ -173,8 +173,8 @@ cd /workspace/gcc-6.5.0/W0RK; \
 --enable-libiberty --enable-libitm --enable-libjava --disable-libmpx --disable-libobjc --enable-libsanitizer \
 --disable-libquadmath --disable-libssp --disable-libstdcxx --disable-libvtv --enable-libquadmath-support \
 --enable-libgcj --enable-static-libjava=unicows --enable-lto --enable-tls --disable-objc-gc --enable-vtable-verify" \
-"make all-target -j$(grep -c ^processor /proc/cpuinfo)" \
-"make install-target"
+"make all -j$(grep -c ^processor /proc/cpuinfo)" \
+"make install"
 export CFLAGS="-O2 -g -fno-common -fno-stack-protector"
 export CXXFLAGS="-O2 -g -fno-common -fno-stack-protector"
 CustomInstall glibc-2.23 xz "For Cross-x86_64" "W0RK" \
@@ -186,14 +186,13 @@ CustomInstall glibc-2.23 xz "For Cross-x86_64" "W0RK" \
 "make install"
 unset CFLAGS
 unset CXXFLAGS
-cp -fv /usr/include/gnu/stubs-32.h /opt/Cross64/x86_64-pc-linux-gnu/include/gnu/stubs-32.h
 InstallCross64 gcc-6.5.0 xz --mandir=/opt/Cross64/x86_64-pc-linux-gnu/share/man --infodir=/opt/Cross64/x86_64-pc-linux-gnu/share/info \
 --with-headers=/opt/Cross64/x86_64-pc-linux-gnu/include --includedir=/opt/Cross64/x86_64-pc-linux-gnu/include \
 --enable-ld=yes --enable-gold=no --enable-obsolete \
 --enable-threads=posix --enable-checking=release --with-system-zlib \
 --enable-__cxa_atexit --disable-libunwind-exceptions --with-tune=generic \
 --enable-languages=ada,c,c++,fortran,go,java,jit,lto,objc,obj-c++ \
---enable-shared --enable-host-shared --enable-multiarch --enable-multilib --enable-tls --enable-cld --enable-nls \
+--enable-shared --enable-host-shared --disable-multiarch --disable-multilib --enable-tls --enable-cld --enable-nls \
 --enable-libada --enable-libatomic --enable-libbacktrace --enable-libcc1 --enable-libcilkrts --enable-libcpp \
 --enable-libdecnumber --enable-libffi --enable-libgcc --enable-libgfortran --enable-libgo --enable-libgomp \
 --enable-libiberty --enable-libitm --enable-libjava --enable-libmpx --enable-libobjc --enable-libsanitizer \
