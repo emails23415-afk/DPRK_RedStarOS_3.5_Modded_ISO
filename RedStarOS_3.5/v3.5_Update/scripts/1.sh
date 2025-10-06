@@ -121,14 +121,14 @@ CustomInstall gcc-6.5.0 xz "For Cross-x86_64 (Bootstrap Stage 1)" "W0RK" \
 "make install-gcc"
 CustomInstall glibc-2.23 xz "For Cross-x86_64 (Bootstrap Stage 1)" "W0RK" \
 "../configure --prefix=/opt/Cross64/x86_64-pc-linux-gnu --mandir=/opt/Cross64/x86_64-pc-linux-gnu/share/man --infodir=/opt/Cross64/x86_64-pc-linux-gnu/share/info \
---host=x86_64-pc-linux-gnu --build=i386-pc-linux-gnu --with-sysroot=/opt/Cross64/x86_64-pc-linux-gnu \
+--host=x86_64-pc-linux-gnu --with-sysroot=/opt/Cross64/x86_64-pc-linux-gnu \
 --with-headers=/opt/Cross64/x86_64-pc-linux-gnu/include --includedir=/opt/Cross64/x86_64-pc-linux-gnu/include \
 --enable-shared --enable-profile --enable-multi-arch --enable-obsolete-rpc --disable-werror" \
 "nop" \
 "make install-headers install-bootstrap-headers=yes"
 CustomInstall glibc-2.23 xz "For Cross-x86_64 (Bootstrap Stage 2)" "W0RK" \
 "../configure --prefix=/opt/Cross64/x86_64-pc-linux-gnu --mandir=/opt/Cross64/x86_64-pc-linux-gnu/share/man --infodir=/opt/Cross64/x86_64-pc-linux-gnu/share/info \
---host=x86_64-pc-linux-gnu --build=i386-pc-linux-gnu --with-sysroot=/opt/Cross64/x86_64-pc-linux-gnu \
+--host=x86_64-pc-linux-gnu --with-sysroot=/opt/Cross64/x86_64-pc-linux-gnu \
 --with-headers=/opt/Cross64/x86_64-pc-linux-gnu/include --includedir=/opt/Cross64/x86_64-pc-linux-gnu/include \
 --enable-shared --enable-profile --enable-multi-arch --enable-obsolete-rpc --disable-werror" \
 "make csu/subdir_lib -j$(grep -c ^processor /proc/cpuinfo)" \
@@ -179,14 +179,14 @@ export CFLAGS="-O2 -g -fno-common -fno-stack-protector"
 export CXXFLAGS="-O2 -g -fno-common -fno-stack-protector"
 CustomInstall glibc-2.23 xz "For Cross-x86_64" "W0RK" \
 "../configure --prefix=/opt/Cross64/x86_64-pc-linux-gnu --mandir=/opt/Cross64/x86_64-pc-linux-gnu/share/man --infodir=/opt/Cross64/x86_64-pc-linux-gnu/share/info \
---host=x86_64-pc-linux-gnu --build=i386-pc-linux-gnu --with-sysroot=/opt/Cross64/x86_64-pc-linux-gnu \
+--host=x86_64-pc-linux-gnu --with-sysroot=/opt/Cross64/x86_64-pc-linux-gnu \
 --with-headers=/opt/Cross64/x86_64-pc-linux-gnu/include --includedir=/opt/Cross64/x86_64-pc-linux-gnu/include \
 --enable-shared --enable-profile --enable-multi-arch --enable-obsolete-rpc --disable-werror" \
 "make all -j$(grep -c ^processor /proc/cpuinfo)" \
 "make install"
 unset CFLAGS
 unset CXXFLAGS
-cp -rnv /usr/include/* /opt/Cross64/x86_64-pc-linux-gnu/include
+cp -fv /usr/include/gnu/stubs-32.h /opt/Cross64/x86_64-pc-linux-gnu/include/gnu/stubs-32.h
 InstallCross64 gcc-6.5.0 xz --mandir=/opt/Cross64/x86_64-pc-linux-gnu/share/man --infodir=/opt/Cross64/x86_64-pc-linux-gnu/share/info \
 --with-headers=/opt/Cross64/x86_64-pc-linux-gnu/include --includedir=/opt/Cross64/x86_64-pc-linux-gnu/include \
 --enable-ld=yes --enable-gold=no --enable-obsolete \
