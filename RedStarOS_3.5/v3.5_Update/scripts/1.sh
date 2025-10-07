@@ -78,10 +78,10 @@ Install automake-1.15 xz
 Install bison-3.5.4 xz 
 Install gawk-4.2.1 xz
 Install sed-4.4 xz
-Install help2man-1.47.17 xz
 Install texinfo-6.8 xz --enable-dependency-tracking
 rm -f /sbin/install-info
 ln -sf /usr/bin/install-info /sbin/install-info
+Install help2man-1.47.17 xz
 Install Python-3.7.6 xz --enable-optimizations --with-pydebug
 Cross64CleanUp
 InstallCross64 binutils-2.34 xz --mandir=/opt/Cross64/x86_64-pc-linux-gnu/share/man --infodir=/opt/Cross64/x86_64-pc-linux-gnu/share/info \
@@ -105,7 +105,16 @@ make headers_install ARCH=x86_64 INSTALL_HDR_PATH=/opt/Cross64/x86_64-pc-linux-g
 rm -f '/opt/Cross64/x86_64-pc-linux-gnu/usr'
 ln -sdf '/opt/Cross64/x86_64-pc-linux-gnu/' '/opt/Cross64/x86_64-pc-linux-gnu/usr'
 CustomInstall gcc-6.5.0 xz "For Cross-x86_64 (Bootstrap Stage 1)" "W0RK" \
-"../configure --target=x86_64-pc-linux-gnu --prefix=/opt/Cross64 --with-sysroot=/opt/Cross64/x86_64-pc-linux-gnu --without-headers \
+"Extract gmp-4.3.2 bz2; \
+Extract mpfr-2.4.2 bz2; \
+Extract mpc-0.8.1 gz; \
+Extract isl-0.14 bz2; \
+ln -sdf '/workspace/gmp-4.3.2' '/workspace/gcc-6.5.0/gmp'; \
+ln -sdf '/workspace/mpfr-2.4.2' '/workspace/gcc-6.5.0/mpfr'; \
+ln -sdf '/workspace/mpc-0.8.1' '/workspace/gcc-6.5.0/mpc'; \
+ln -sdf '/workspace/isl-0.14' '/workspace/gcc-6.5.0/isl'; \
+cd /workspace/gcc-6.5.0/W0RK; \
+../configure --target=x86_64-pc-linux-gnu --prefix=/opt/Cross64 --with-sysroot=/opt/Cross64/x86_64-pc-linux-gnu --without-headers \
 --mandir=/opt/Cross64/x86_64-pc-linux-gnu/share/man --infodir=/opt/Cross64/x86_64-pc-linux-gnu/share/info \
 --enable-ld=yes --enable-gold=no --enable-obsolete \
 --enable-threads=posix --enable-checking=release \
@@ -118,7 +127,11 @@ CustomInstall gcc-6.5.0 xz "For Cross-x86_64 (Bootstrap Stage 1)" "W0RK" \
 --enable-libquadmath --enable-libssp --enable-libstdcxx --enable-libvtv --enable-libquadmath-support \
 --enable-libgcj --enable-static-libjava=unicows --enable-lto --enable-tls --enable-objc-gc --enable-vtable-verify" \
 "make all-gcc -j$(grep -c ^processor /proc/cpuinfo)" \
-"make install-gcc"
+"make install-gcc; \
+CleanUp gmp-4.3.2; \
+CleanUp mpfr-2.4.2; \
+CleanUp mpc-0.8.1; \
+CleanUp isl-0.14"
 CustomInstall glibc-2.23 xz "For Cross-x86_64 (Bootstrap Stage 1)" "W0RK" \
 "../configure --prefix=/opt/Cross64/x86_64-pc-linux-gnu --mandir=/opt/Cross64/x86_64-pc-linux-gnu/share/man --infodir=/opt/Cross64/x86_64-pc-linux-gnu/share/info \
 --host=x86_64-pc-linux-gnu --with-sysroot=/opt/Cross64/x86_64-pc-linux-gnu \
@@ -135,7 +148,16 @@ CustomInstall glibc-2.23 xz "For Cross-x86_64 (Bootstrap Stage 1)" "W0RK" \
 "install csu/crt1.o csu/crti.o csu/crtn.o /opt/Cross64/x86_64-pc-linux-gnu/lib"
 touch /opt/Cross64/x86_64-pc-linux-gnu/include/gnu/stubs.h
 CustomInstall gcc-6.5.0 xz "For Cross-x86_64 (Bootstrap Stage 2)" "W0RK" \
-"../configure --target=x86_64-pc-linux-gnu --prefix=/opt/Cross64 \
+"Extract gmp-4.3.2 bz2; \
+Extract mpfr-2.4.2 bz2; \
+Extract mpc-0.8.1 gz; \
+Extract isl-0.14 bz2; \
+ln -sdf '/workspace/gmp-4.3.2' '/workspace/gcc-6.5.0/gmp'; \
+ln -sdf '/workspace/mpfr-2.4.2' '/workspace/gcc-6.5.0/mpfr'; \
+ln -sdf '/workspace/mpc-0.8.1' '/workspace/gcc-6.5.0/mpc'; \
+ln -sdf '/workspace/isl-0.14' '/workspace/gcc-6.5.0/isl'; \
+cd /workspace/gcc-6.5.0/W0RK; \
+../configure --target=x86_64-pc-linux-gnu --prefix=/opt/Cross64 \
 --mandir=/opt/Cross64/x86_64-pc-linux-gnu/share/man --infodir=/opt/Cross64/x86_64-pc-linux-gnu/share/info \
 --with-sysroot=/opt/Cross64/x86_64-pc-linux-gnu --with-headers=/opt/Cross64/x86_64-pc-linux-gnu/include --includedir=/opt/Cross64/x86_64-pc-linux-gnu/include \
 --enable-ld=yes --enable-gold=no --enable-obsolete \
@@ -149,7 +171,11 @@ CustomInstall gcc-6.5.0 xz "For Cross-x86_64 (Bootstrap Stage 2)" "W0RK" \
 --enable-libquadmath --enable-libssp --enable-libstdcxx --enable-libvtv --enable-libquadmath-support \
 --enable-libgcj --enable-static-libjava=unicows --enable-lto --enable-tls --enable-objc-gc --enable-vtable-verify" \
 "make all-target-libgcc -j$(grep -c ^processor /proc/cpuinfo)" \
-"make install-target-libgcc"
+"make install-target-libgcc; \
+CleanUp gmp-4.3.2; \
+CleanUp mpfr-2.4.2; \
+CleanUp mpc-0.8.1; \
+CleanUp isl-0.14"
 CustomInstall gcc-6.5.0 xz "For Cross-x86_64 (Bootstrap Stage 3)" "W0RK" \
 "Extract gmp-4.3.2 bz2; \
 Extract mpfr-2.4.2 bz2; \
@@ -174,10 +200,14 @@ cd /workspace/gcc-6.5.0/W0RK; \
 --disable-libquadmath --disable-libssp --disable-libstdcxx --disable-libvtv --enable-libquadmath-support \
 --enable-libgcj --enable-static-libjava=unicows --enable-lto --enable-tls --disable-objc-gc --enable-vtable-verify" \
 "make all -j$(grep -c ^processor /proc/cpuinfo)" \
-"make install"
+"make install; \
+CleanUp gmp-4.3.2; \
+CleanUp mpfr-2.4.2; \
+CleanUp mpc-0.8.1; \
+CleanUp isl-0.14"
 export CFLAGS="-O2 -g -fno-common -fno-stack-protector"
 export CXXFLAGS="-O2 -g -fno-common -fno-stack-protector"
-CustomInstall glibc-2.23 xz "For Cross-x86_64" "W0RK" \
+CustomInstall glibc-2.23 xz "For Cross-x86_64 (Bootstrap Stage 4)" "W0RK" \
 "../configure --prefix=/opt/Cross64/x86_64-pc-linux-gnu --mandir=/opt/Cross64/x86_64-pc-linux-gnu/share/man --infodir=/opt/Cross64/x86_64-pc-linux-gnu/share/info \
 --host=x86_64-pc-linux-gnu --with-sysroot=/opt/Cross64/x86_64-pc-linux-gnu \
 --with-headers=/opt/Cross64/x86_64-pc-linux-gnu/include --includedir=/opt/Cross64/x86_64-pc-linux-gnu/include \
@@ -186,18 +216,75 @@ CustomInstall glibc-2.23 xz "For Cross-x86_64" "W0RK" \
 "make install"
 unset CFLAGS
 unset CXXFLAGS
-InstallCross64 gcc-6.5.0 xz --mandir=/opt/Cross64/x86_64-pc-linux-gnu/share/man --infodir=/opt/Cross64/x86_64-pc-linux-gnu/share/info \
---with-headers=/opt/Cross64/x86_64-pc-linux-gnu/include --includedir=/opt/Cross64/x86_64-pc-linux-gnu/include \
+CustomInstall gcc-6.5.0 xz "For Cross-x86_64 (Bootstrap Stage 4)" "W0RK" \
+"Extract gmp-4.3.2 bz2; \
+Extract mpfr-2.4.2 bz2; \
+Extract mpc-0.8.1 gz; \
+Extract isl-0.14 bz2; \
+ln -sdf '/workspace/gmp-4.3.2' '/workspace/gcc-6.5.0/gmp'; \
+ln -sdf '/workspace/mpfr-2.4.2' '/workspace/gcc-6.5.0/mpfr'; \
+ln -sdf '/workspace/mpc-0.8.1' '/workspace/gcc-6.5.0/mpc'; \
+ln -sdf '/workspace/isl-0.14' '/workspace/gcc-6.5.0/isl'; \
+cd /workspace/gcc-6.5.0/W0RK; \
+../configure --target=x86_64-pc-linux-gnu --prefix=/opt/Cross64 \
+--mandir=/opt/Cross64/x86_64-pc-linux-gnu/share/man --infodir=/opt/Cross64/x86_64-pc-linux-gnu/share/info \
+--with-sysroot=/opt/Cross64/x86_64-pc-linux-gnu --with-headers=/opt/Cross64/x86_64-pc-linux-gnu/include --includedir=/opt/Cross64/x86_64-pc-linux-gnu/include \
 --enable-ld=yes --enable-gold=no --enable-obsolete \
---enable-threads=posix --enable-checking=release --with-system-zlib \
+--enable-threads=posix --enable-checking=release \
 --enable-__cxa_atexit --disable-libunwind-exceptions --with-tune=generic \
---enable-languages=ada,c,c++,fortran,go,java,jit,lto,objc,obj-c++ \
+--enable-languages=c,c++,objc,obj-c++ \
 --enable-shared --enable-host-shared --disable-multiarch --disable-multilib --enable-tls --enable-cld --enable-nls \
 --enable-libada --enable-libatomic --enable-libbacktrace --enable-libcc1 --enable-libcilkrts --enable-libcpp \
 --enable-libdecnumber --enable-libffi --enable-libgcc --enable-libgfortran --enable-libgo --enable-libgomp \
 --enable-libiberty --enable-libitm --enable-libjava --enable-libmpx --enable-libobjc --enable-libsanitizer \
+--enable-libquadmath --enable-libssp --enable-libstdcxx --disable-libvtv --enable-libquadmath-support \
+--enable-libgcj --enable-static-libjava=unicows --enable-lto --enable-tls --enable-objc-gc --enable-vtable-verify" \
+"make all-target -j$(grep -c ^processor /proc/cpuinfo)" \
+"make install-target; \
+CleanUp gmp-4.3.2; \
+CleanUp mpfr-2.4.2; \
+CleanUp mpc-0.8.1; \
+CleanUp isl-0.14"
+CustomInstall gcc-6.5.0 xz "For Cross-x86_64 (Final Stage)" "W0RK" \
+"Extract gmp-4.3.2 bz2; \
+Extract mpfr-2.4.2 bz2; \
+Extract mpc-0.8.1 gz; \
+Extract isl-0.14 bz2; \
+ln -sdf '/workspace/gmp-4.3.2' '/workspace/gcc-6.5.0/gmp'; \
+ln -sdf '/workspace/mpfr-2.4.2' '/workspace/gcc-6.5.0/mpfr'; \
+ln -sdf '/workspace/mpc-0.8.1' '/workspace/gcc-6.5.0/mpc'; \
+ln -sdf '/workspace/isl-0.14' '/workspace/gcc-6.5.0/isl'; \
+cd /workspace/gcc-6.5.0/W0RK; \
+../configure --target=x86_64-pc-linux-gnu --prefix=/opt/Cross64 \
+--mandir=/opt/Cross64/x86_64-pc-linux-gnu/share/man --infodir=/opt/Cross64/x86_64-pc-linux-gnu/share/info \
+--with-sysroot=/opt/Cross64/x86_64-pc-linux-gnu --with-headers=/opt/Cross64/x86_64-pc-linux-gnu/include --includedir=/opt/Cross64/x86_64-pc-linux-gnu/include \
+--enable-ld=yes --enable-gold=no --enable-obsolete \
+--enable-threads=posix --enable-checking=release \
+--enable-__cxa_atexit --disable-libunwind-exceptions --with-tune=generic \
+--enable-languages=ada,c,c++,fortran,go,java,jit,lto,objc,obj-c++ \
+--enable-shared --enable-host-shared --enable-multiarch --enable-multilib --enable-tls --enable-cld --enable-nls \
+--enable-libada --enable-libatomic --enable-libbacktrace --enable-libcc1 --enable-libcilkrts --enable-libcpp \
+--enable-libdecnumber --enable-libffi --enable-libgcc --enable-libgfortran --enable-libgo --enable-libgomp \
+--enable-libiberty --enable-libitm --enable-libjava --enable-libmpx --enable-libobjc --enable-libsanitizer \
 --enable-libquadmath --enable-libssp --enable-libstdcxx --enable-libvtv --enable-libquadmath-support \
---enable-libgcj --enable-static-libjava=unicows --enable-lto --enable-tls --enable-objc-gc --enable-vtable-verify
+--enable-libgcj --enable-static-libjava=unicows --enable-lto --enable-tls --enable-objc-gc --enable-vtable-verify" \
+"make all -j$(grep -c ^processor /proc/cpuinfo)" \
+"make install; \
+CleanUp gmp-4.3.2; \
+CleanUp mpfr-2.4.2; \
+CleanUp mpc-0.8.1; \
+CleanUp isl-0.14"
+export CFLAGS="-O2 -g -fno-common"
+export CXXFLAGS="-O2 -g -fno-common"
+CustomInstall glibc-2.23 xz "For Cross-x86_64 (Final Stage)" "W0RK" \
+"../configure --prefix=/opt/Cross64/x86_64-pc-linux-gnu --mandir=/opt/Cross64/x86_64-pc-linux-gnu/share/man --infodir=/opt/Cross64/x86_64-pc-linux-gnu/share/info \
+--host=x86_64-pc-linux-gnu --with-sysroot=/opt/Cross64/x86_64-pc-linux-gnu \
+--with-headers=/opt/Cross64/x86_64-pc-linux-gnu/include --includedir=/opt/Cross64/x86_64-pc-linux-gnu/include \
+--enable-shared --enable-profile --enable-multi-arch --enable-obsolete-rpc --disable-werror" \
+"make all -j$(grep -c ^processor /proc/cpuinfo)" \
+"make install"
+unset CFLAGS
+unset CXXFLAGS
 InstallCross64Alt make-4.2.1 gz --with-libintl-prefix --with-libiconv-prefix --with-gnu-ld
 scripterror
 KernelInstall 3.19.8 gz
