@@ -25,7 +25,7 @@ Install gcc-6.5.0 xz --mandir=/usr/share/man --infodir=/usr/share/info \
 --enable-threads=posix --enable-checking=release --with-system-zlib \
 --enable-__cxa_atexit --disable-libunwind-exceptions --with-tune=generic \
 --enable-languages=ada,c,c++,fortran,go,java,jit,lto,objc,obj-c++ \
---enable-shared --enable-host-shared --enable-multiarch --enable-multilib --enable-tls --enable-cld --enable-nls \
+--enable-shared --enable-host-shared --enable-multiarch --enable-multilib --enable-tls --enable-cld --disable-nls \
 --enable-libada --enable-libatomic --enable-libbacktrace --enable-libcc1 --enable-libcilkrts --enable-libcpp \
 --enable-libdecnumber --enable-libffi --enable-libgcc --enable-libgfortran --enable-libgo --enable-libgomp \
 --enable-libiberty --enable-libitm --enable-libjava --enable-libmpx --enable-libobjc --enable-libsanitizer \
@@ -35,7 +35,7 @@ Install gdb-7.12 xz --mandir=/usr/share/man --infodir=/usr/share/info \
 --enable-ld=yes --enable-gold=no --enable-obsolete \
 --enable-threads=posix --enable-checking=release --with-system-zlib \
 --enable-__cxa_atexit --disable-libunwind-exceptions --with-tune=generic \
---enable-shared --enable-host-shared --enable-multiarch --enable-multilib --enable-tls --enable-cld --enable-nls \
+--enable-shared --enable-host-shared --enable-multiarch --enable-multilib --enable-tls --enable-cld --disable-nls \
 --enable-libada --enable-libatomic --enable-libbacktrace --enable-libcc1 --enable-libcilkrts --enable-libcpp \
 --enable-libdecnumber --enable-libffi --enable-libgcc --enable-libgfortran --enable-libgo --enable-libgomp \
 --enable-libiberty --enable-libitm --enable-libjava --enable-libmpx --enable-libobjc --enable-libsanitizer \
@@ -45,7 +45,7 @@ Install binutils-2.34 xz --mandir=/usr/share/man --infodir=/usr/share/info \
 --enable-ld=yes --enable-gold=no --enable-obsolete \
 --enable-threads=posix --enable-checking=release --with-system-zlib \
 --enable-__cxa_atexit --disable-libunwind-exceptions --with-tune=generic \
---enable-shared --enable-host-shared --enable-multiarch --enable-multilib --enable-tls --enable-cld --enable-nls \
+--enable-shared --enable-host-shared --enable-multiarch --enable-multilib --enable-tls --enable-cld --disable-nls \
 --enable-libada --enable-libatomic --enable-libbacktrace --enable-libcc1 --enable-libcilkrts --enable-libcpp \
 --enable-libdecnumber --enable-libffi --enable-libgcc --enable-libgfortran --enable-libgo --enable-libgomp \
 --enable-libiberty --enable-libitm --enable-libjava --enable-libmpx --enable-libobjc --enable-libsanitizer \
@@ -72,7 +72,7 @@ Install p11-kit-0.23.18.1 gz
 Install gnutls-3.3.30 xz --enable-shared
 Install wget-1.19.5 gz
 Install m4-1.4.18 xz
-Install libtool-2.4.6 xz --enable-shared
+Install libtool-2.4.6 xz --enable-shared=yes --enable-static=yes --with-gnu-ld
 Install autoconf-2.69 xz
 Install automake-1.15 xz
 Install bison-3.5.4 xz 
@@ -84,26 +84,27 @@ ln -sf /usr/bin/install-info /sbin/install-info
 Install help2man-1.47.17 xz
 Install Python-3.7.6 xz --enable-optimizations --with-pydebug
 Cross64CleanUp
-InstallCross64 binutils-2.34 xz --mandir=/opt/Cross64/x86_64-pc-linux-gnu/share/man --infodir=/opt/Cross64/x86_64-pc-linux-gnu/share/info \
+InstallCross64 binutils-2.34 xz --mandir=/opt/NewRoot/share/man --infodir=/opt/NewRoot/share/info \
 --enable-ld=yes --enable-gold=no --enable-obsolete \
 --enable-threads=posix --enable-checking=release --with-system-zlib \
 --enable-__cxa_atexit --disable-libunwind-exceptions --with-tune=generic \
---enable-shared --enable-host-shared --enable-multiarch --enable-multilib --enable-tls --enable-cld --enable-nls \
+--enable-shared --enable-host-shared --enable-multiarch --enable-multilib --enable-tls --enable-cld --disable-nls \
 --enable-libada --enable-libatomic --enable-libbacktrace --enable-libcc1 --enable-libcilkrts --enable-libcpp \
 --enable-libdecnumber --enable-libffi --enable-libgcc --enable-libgfortran --enable-libgo --enable-libgomp \
 --enable-libiberty --enable-libitm --enable-libjava --enable-libmpx --enable-libobjc --enable-libsanitizer \
 --enable-libquadmath --enable-libssp --enable-libstdcxx --enable-libvtv --enable-libquadmath-support \
 --enable-libgcj --enable-static-libjava=unicows --enable-lto --enable-tls --enable-objc-gc --enable-vtable-verify
-cp -rnv /opt/Cross64/i686-pc-linux-gnu/x86_64-pc-linux-gnu/* /opt/Cross64/x86_64-pc-linux-gnu/
 title Installing Kernel 3.19.8 For Cross-x86_64 \[Extracting\]
 cd /usr/src/kernels
 tar xvf "/root/Desktop/v3.5 Update Combo/packages/linux-3.19.8.tar.xz"
 cd /usr/src/kernels/linux-3.19.8
 title Installing Kernel 3.19.8 For Cross-x86_64 \[Deploying Headers\]
+make mrproper ARCH=x86
+make headers_install ARCH=x86 INSTALL_HDR_PATH=/opt/NewRoot
 make mrproper ARCH=x86_64
-make headers_install ARCH=x86_64 INSTALL_HDR_PATH=/opt/Cross64/x86_64-pc-linux-gnu
-rm -f '/opt/Cross64/x86_64-pc-linux-gnu/usr'
-ln -sdf '/opt/Cross64/x86_64-pc-linux-gnu/' '/opt/Cross64/x86_64-pc-linux-gnu/usr'
+make headers_install ARCH=x86_64 INSTALL_HDR_PATH=/opt/NewRoot
+rm -f '/opt/NewRoot/usr'
+ln -sdf '/opt/NewRoot' '/opt/NewRoot/usr'
 CustomInstall gcc-6.5.0 xz "For Cross-x86_64 (Bootstrap Stage 1)" "W0RK" \
 "Extract gmp-4.3.2 bz2; \
 Extract mpfr-2.4.2 bz2; \
@@ -114,13 +115,13 @@ ln -sdf '/workspace/mpfr-2.4.2' '/workspace/gcc-6.5.0/mpfr'; \
 ln -sdf '/workspace/mpc-0.8.1' '/workspace/gcc-6.5.0/mpc'; \
 ln -sdf '/workspace/isl-0.14' '/workspace/gcc-6.5.0/isl'; \
 cd /workspace/gcc-6.5.0/W0RK; \
-../configure --target=x86_64-pc-linux-gnu --prefix=/opt/Cross64 --with-sysroot=/opt/Cross64/x86_64-pc-linux-gnu --without-headers \
---mandir=/opt/Cross64/x86_64-pc-linux-gnu/share/man --infodir=/opt/Cross64/x86_64-pc-linux-gnu/share/info \
+../configure --target=x86_64-pc-linux-gnu --prefix=/opt/Cross64 --with-sysroot=/opt/NewRoot --without-headers \
+--mandir=/opt/NewRoot/share/man --infodir=/opt/NewRoot/share/info \
 --enable-ld=yes --enable-gold=no --enable-obsolete \
---enable-threads=posix --enable-checking=release \
+--enable-threads=posix --enable-checking=release --enable-bootstrap \
 --enable-__cxa_atexit --disable-libunwind-exceptions --with-tune=generic \
 --enable-languages=c,c++,objc,obj-c++ \
---enable-shared --enable-host-shared --enable-multiarch --enable-multilib --enable-tls --enable-cld --enable-nls \
+--enable-shared --enable-host-shared --enable-multiarch --enable-multilib --enable-tls --enable-cld --disable-nls \
 --enable-libada --enable-libatomic --enable-libbacktrace --enable-libcc1 --enable-libcilkrts --enable-libcpp \
 --enable-libdecnumber --enable-libffi --enable-libgcc --enable-libgfortran --enable-libgo --enable-libgomp \
 --enable-libiberty --enable-libitm --enable-libjava --enable-libmpx --enable-libobjc --enable-libsanitizer \
@@ -133,20 +134,20 @@ CleanUp mpfr-2.4.2; \
 CleanUp mpc-0.8.1; \
 CleanUp isl-0.14"
 CustomInstall glibc-2.23 xz "For Cross-x86_64 (Bootstrap Stage 1)" "W0RK" \
-"../configure --prefix=/opt/Cross64/x86_64-pc-linux-gnu --mandir=/opt/Cross64/x86_64-pc-linux-gnu/share/man --infodir=/opt/Cross64/x86_64-pc-linux-gnu/share/info \
---host=x86_64-pc-linux-gnu --with-sysroot=/opt/Cross64/x86_64-pc-linux-gnu \
---with-headers=/opt/Cross64/x86_64-pc-linux-gnu/include --includedir=/opt/Cross64/x86_64-pc-linux-gnu/include \
+"../configure --prefix=/opt/NewRoot --mandir=/opt/NewRoot/share/man --infodir=/opt/NewRoot/share/info \
+--host=x86_64-pc-linux-gnu --with-sysroot=/opt/NewRoot \
+--with-headers=/opt/NewRoot/include --includedir=/opt/NewRoot/include \
 --enable-shared --enable-profile --enable-multi-arch --enable-obsolete-rpc --disable-werror" \
 "nop" \
 "make install-headers install-bootstrap-headers=yes"
 CustomInstall glibc-2.23 xz "For Cross-x86_64 (Bootstrap Stage 1)" "W0RK" \
-"../configure --prefix=/opt/Cross64/x86_64-pc-linux-gnu --mandir=/opt/Cross64/x86_64-pc-linux-gnu/share/man --infodir=/opt/Cross64/x86_64-pc-linux-gnu/share/info \
---host=x86_64-pc-linux-gnu --with-sysroot=/opt/Cross64/x86_64-pc-linux-gnu \
---with-headers=/opt/Cross64/x86_64-pc-linux-gnu/include --includedir=/opt/Cross64/x86_64-pc-linux-gnu/include \
+"../configure --prefix=/opt/NewRoot --mandir=/opt/NewRoot/share/man --infodir=/opt/NewRoot/share/info \
+--host=x86_64-pc-linux-gnu --with-sysroot=/opt/NewRoot \
+--with-headers=/opt/NewRoot/include --includedir=/opt/NewRoot/include \
 --enable-shared --enable-profile --enable-multi-arch --enable-obsolete-rpc --disable-werror" \
 "make csu/subdir_lib -j$(grep -c ^processor /proc/cpuinfo)" \
-"install csu/crt1.o csu/crti.o csu/crtn.o /opt/Cross64/x86_64-pc-linux-gnu/lib"
-touch /opt/Cross64/x86_64-pc-linux-gnu/include/gnu/stubs.h
+"install csu/crt1.o csu/crti.o csu/crtn.o /opt/NewRoot/lib"
+touch /opt/NewRoot/include/gnu/stubs.h
 CustomInstall gcc-6.5.0 xz "For Cross-x86_64 (Bootstrap Stage 2)" "W0RK" \
 "Extract gmp-4.3.2 bz2; \
 Extract mpfr-2.4.2 bz2; \
@@ -158,13 +159,13 @@ ln -sdf '/workspace/mpc-0.8.1' '/workspace/gcc-6.5.0/mpc'; \
 ln -sdf '/workspace/isl-0.14' '/workspace/gcc-6.5.0/isl'; \
 cd /workspace/gcc-6.5.0/W0RK; \
 ../configure --target=x86_64-pc-linux-gnu --prefix=/opt/Cross64 \
---mandir=/opt/Cross64/x86_64-pc-linux-gnu/share/man --infodir=/opt/Cross64/x86_64-pc-linux-gnu/share/info \
---with-sysroot=/opt/Cross64/x86_64-pc-linux-gnu --with-headers=/opt/Cross64/x86_64-pc-linux-gnu/include --includedir=/opt/Cross64/x86_64-pc-linux-gnu/include \
+--mandir=/opt/NewRoot/share/man --infodir=/opt/NewRoot/share/info \
+--with-sysroot=/opt/NewRoot --with-headers=/opt/NewRoot/include --includedir=/opt/NewRoot/include \
 --enable-ld=yes --enable-gold=no --enable-obsolete \
 --enable-threads=posix --enable-checking=release \
 --enable-__cxa_atexit --disable-libunwind-exceptions --with-tune=generic \
 --enable-languages=c,c++,objc,obj-c++ \
---disable-shared --enable-host-shared --enable-multiarch --enable-multilib --enable-tls --enable-cld --enable-nls \
+--disable-shared --enable-host-shared --enable-multiarch --enable-multilib --enable-tls --enable-cld --disable-nls \
 --enable-libada --enable-libatomic --enable-libbacktrace --enable-libcc1 --enable-libcilkrts --enable-libcpp \
 --enable-libdecnumber --enable-libffi --enable-libgcc --enable-libgfortran --enable-libgo --enable-libgomp \
 --enable-libiberty --enable-libitm --enable-libjava --enable-libmpx --enable-libobjc --enable-libsanitizer \
@@ -187,13 +188,13 @@ ln -sdf '/workspace/mpc-0.8.1' '/workspace/gcc-6.5.0/mpc'; \
 ln -sdf '/workspace/isl-0.14' '/workspace/gcc-6.5.0/isl'; \
 cd /workspace/gcc-6.5.0/W0RK; \
 ../configure --target=x86_64-pc-linux-gnu --prefix=/opt/Cross64 \
---mandir=/opt/Cross64/x86_64-pc-linux-gnu/share/man --infodir=/opt/Cross64/x86_64-pc-linux-gnu/share/info \
---with-sysroot=/opt/Cross64/x86_64-pc-linux-gnu --with-headers=/opt/Cross64/x86_64-pc-linux-gnu/include --includedir=/opt/Cross64/x86_64-pc-linux-gnu/include \
+--mandir=/opt/NewRoot/share/man --infodir=/opt/NewRoot/share/info \
+--with-sysroot=/opt/NewRoot --with-headers=/opt/NewRoot/include --includedir=/opt/NewRoot/include \
 --enable-ld=yes --enable-gold=no --enable-obsolete \
 --enable-threads=posix --enable-checking=release \
 --enable-__cxa_atexit --disable-libunwind-exceptions --with-tune=generic \
 --enable-languages=c,c++,objc,obj-c++ \
---disable-shared --enable-host-shared --enable-multiarch --enable-multilib --enable-tls --enable-cld --enable-nls \
+--disable-shared --enable-host-shared --enable-multiarch --enable-multilib --enable-tls --enable-cld --disable-nls \
 --enable-libada --disable-libatomic --enable-libbacktrace --enable-libcc1 --enable-libcilkrts --enable-libcpp \
 --enable-libdecnumber --enable-libffi --enable-libgcc --enable-libgfortran --enable-libgo --disable-libgomp \
 --enable-libiberty --enable-libitm --enable-libjava --disable-libmpx --disable-libobjc --enable-libsanitizer \
@@ -208,9 +209,9 @@ CleanUp isl-0.14"
 export CFLAGS="-O2 -g -fno-common -fno-stack-protector"
 export CXXFLAGS="-O2 -g -fno-common -fno-stack-protector"
 CustomInstall glibc-2.23 xz "For Cross-x86_64 (Bootstrap Stage 4)" "W0RK" \
-"../configure --prefix=/opt/Cross64/x86_64-pc-linux-gnu --mandir=/opt/Cross64/x86_64-pc-linux-gnu/share/man --infodir=/opt/Cross64/x86_64-pc-linux-gnu/share/info \
---host=x86_64-pc-linux-gnu --with-sysroot=/opt/Cross64/x86_64-pc-linux-gnu \
---with-headers=/opt/Cross64/x86_64-pc-linux-gnu/include --includedir=/opt/Cross64/x86_64-pc-linux-gnu/include \
+"../configure --prefix=/opt/NewRoot --mandir=/opt/NewRoot/share/man --infodir=/opt/NewRoot/share/info \
+--host=x86_64-pc-linux-gnu --with-sysroot=/opt/NewRoot \
+--with-headers=/opt/NewRoot/include --includedir=/opt/NewRoot/include \
 --enable-shared --enable-profile --enable-multi-arch --enable-obsolete-rpc --disable-werror" \
 "make all -j$(grep -c ^processor /proc/cpuinfo)" \
 "make install"
@@ -227,16 +228,16 @@ ln -sdf '/workspace/mpc-0.8.1' '/workspace/gcc-6.5.0/mpc'; \
 ln -sdf '/workspace/isl-0.14' '/workspace/gcc-6.5.0/isl'; \
 cd /workspace/gcc-6.5.0/W0RK; \
 ../configure --target=x86_64-pc-linux-gnu --prefix=/opt/Cross64 \
---mandir=/opt/Cross64/x86_64-pc-linux-gnu/share/man --infodir=/opt/Cross64/x86_64-pc-linux-gnu/share/info \
---with-sysroot=/opt/Cross64/x86_64-pc-linux-gnu --with-headers=/opt/Cross64/x86_64-pc-linux-gnu/include --includedir=/opt/Cross64/x86_64-pc-linux-gnu/include \
+--mandir=/opt/NewRoot/share/man --infodir=/opt/NewRoot/share/info \
+--with-sysroot=/opt/NewRoot --with-headers=/opt/NewRoot/include --includedir=/opt/NewRoot/include \
 --enable-ld=yes --enable-gold=no --enable-obsolete \
 --enable-threads=posix --enable-checking=release \
 --enable-__cxa_atexit --disable-libunwind-exceptions --with-tune=generic \
 --enable-languages=c,c++,objc,obj-c++ \
---enable-shared --enable-host-shared --disable-multiarch --disable-multilib --enable-tls --enable-cld --enable-nls \
---enable-libada --enable-libatomic --enable-libbacktrace --enable-libcc1 --enable-libcilkrts --enable-libcpp \
+--enable-shared --enable-host-shared --disable-multiarch --disable-multilib --enable-tls --enable-cld --disable-nls \
+--enable-libada --enable-libatomic --enable-libbacktrace --enable-libcc1 --disable-libcilkrts --enable-libcpp \
 --enable-libdecnumber --enable-libffi --enable-libgcc --enable-libgfortran --enable-libgo --enable-libgomp \
---enable-libiberty --enable-libitm --enable-libjava --enable-libmpx --enable-libobjc --enable-libsanitizer \
+--enable-libiberty --disable-libitm --enable-libjava --enable-libmpx --enable-libobjc --enable-libsanitizer \
 --enable-libquadmath --enable-libssp --enable-libstdcxx --disable-libvtv --enable-libquadmath-support \
 --enable-libgcj --enable-static-libjava=unicows --enable-lto --enable-tls --enable-objc-gc --enable-vtable-verify" \
 "make all-target -j$(grep -c ^processor /proc/cpuinfo)" \
@@ -245,6 +246,17 @@ CleanUp gmp-4.3.2; \
 CleanUp mpfr-2.4.2; \
 CleanUp mpc-0.8.1; \
 CleanUp isl-0.14"
+export CFLAGS="-O2 -g -fno-common"
+export CXXFLAGS="-O2 -g -fno-common"
+CustomInstall glibc-2.23 xz "For Cross-x86_64 (Final Stage)" "W0RK" \
+"../configure --prefix=/opt/NewRoot --mandir=/opt/NewRoot/share/man --infodir=/opt/NewRoot/share/info \
+--host=x86_64-pc-linux-gnu --with-sysroot=/opt/NewRoot \
+--with-headers=/opt/NewRoot/include --includedir=/opt/NewRoot/include \
+--enable-shared --enable-profile --enable-multi-arch --enable-obsolete-rpc --disable-werror" \
+"make all -j$(grep -c ^processor /proc/cpuinfo)" \
+"make install"
+unset CFLAGS
+unset CXXFLAGS
 CustomInstall gcc-6.5.0 xz "For Cross-x86_64 (Final Stage)" "W0RK" \
 "Extract gmp-4.3.2 bz2; \
 Extract mpfr-2.4.2 bz2; \
@@ -256,13 +268,13 @@ ln -sdf '/workspace/mpc-0.8.1' '/workspace/gcc-6.5.0/mpc'; \
 ln -sdf '/workspace/isl-0.14' '/workspace/gcc-6.5.0/isl'; \
 cd /workspace/gcc-6.5.0/W0RK; \
 ../configure --target=x86_64-pc-linux-gnu --prefix=/opt/Cross64 \
---mandir=/opt/Cross64/x86_64-pc-linux-gnu/share/man --infodir=/opt/Cross64/x86_64-pc-linux-gnu/share/info \
---with-sysroot=/opt/Cross64/x86_64-pc-linux-gnu --with-headers=/opt/Cross64/x86_64-pc-linux-gnu/include --includedir=/opt/Cross64/x86_64-pc-linux-gnu/include \
+--mandir=/opt/NewRoot/share/man --infodir=/opt/NewRoot/share/info \
+--with-sysroot=/opt/NewRoot --with-headers=/opt/NewRoot/include --includedir=/opt/NewRoot/include \
 --enable-ld=yes --enable-gold=no --enable-obsolete \
 --enable-threads=posix --enable-checking=release \
 --enable-__cxa_atexit --disable-libunwind-exceptions --with-tune=generic \
 --enable-languages=ada,c,c++,fortran,go,java,jit,lto,objc,obj-c++ \
---enable-shared --enable-host-shared --enable-multiarch --enable-multilib --enable-tls --enable-cld --enable-nls \
+--enable-shared --enable-host-shared --enable-multiarch --enable-multilib --enable-tls --enable-cld --disable-nls \
 --enable-libada --enable-libatomic --enable-libbacktrace --enable-libcc1 --enable-libcilkrts --enable-libcpp \
 --enable-libdecnumber --enable-libffi --enable-libgcc --enable-libgfortran --enable-libgo --enable-libgomp \
 --enable-libiberty --enable-libitm --enable-libjava --enable-libmpx --enable-libobjc --enable-libsanitizer \
@@ -274,17 +286,6 @@ CleanUp gmp-4.3.2; \
 CleanUp mpfr-2.4.2; \
 CleanUp mpc-0.8.1; \
 CleanUp isl-0.14"
-export CFLAGS="-O2 -g -fno-common"
-export CXXFLAGS="-O2 -g -fno-common"
-CustomInstall glibc-2.23 xz "For Cross-x86_64 (Final Stage)" "W0RK" \
-"../configure --prefix=/opt/Cross64/x86_64-pc-linux-gnu --mandir=/opt/Cross64/x86_64-pc-linux-gnu/share/man --infodir=/opt/Cross64/x86_64-pc-linux-gnu/share/info \
---host=x86_64-pc-linux-gnu --with-sysroot=/opt/Cross64/x86_64-pc-linux-gnu \
---with-headers=/opt/Cross64/x86_64-pc-linux-gnu/include --includedir=/opt/Cross64/x86_64-pc-linux-gnu/include \
---enable-shared --enable-profile --enable-multi-arch --enable-obsolete-rpc --disable-werror" \
-"make all -j$(grep -c ^processor /proc/cpuinfo)" \
-"make install"
-unset CFLAGS
-unset CXXFLAGS
 InstallCross64Alt make-4.2.1 gz --with-libintl-prefix --with-libiconv-prefix --with-gnu-ld
 scripterror
 KernelInstall 3.19.8 gz
