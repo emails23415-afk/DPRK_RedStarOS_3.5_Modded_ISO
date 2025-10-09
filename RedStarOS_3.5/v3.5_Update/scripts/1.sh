@@ -162,7 +162,7 @@ ln -sdf '/workspace/isl-0.14' '/workspace/gcc-6.5.0/isl'; \
 cd /workspace/gcc-6.5.0/W0RK; \
 ../configure --target=x86_64-pc-linux-gnu --prefix=/opt/Cross64 \
 --mandir=/opt/NewRoot/share/man --infodir=/opt/NewRoot/share/info \
---with-sysroot=/opt/NewRoot --with-headers=/opt/NewRoot/include --includedir=/opt/NewRoot/include \
+--with-sysroot=/opt/NewRoot --with-headers=/opt/NewRoot/include --includedir=/opt/NewRoot/include --libdir=/opt/NewRoot/lib64 \
 --enable-ld=yes --enable-gold=no --enable-obsolete \
 --enable-threads=posix --enable-checking=release \
 --enable-__cxa_atexit --disable-libunwind-exceptions --with-tune=generic \
@@ -191,7 +191,7 @@ ln -sdf '/workspace/isl-0.14' '/workspace/gcc-6.5.0/isl'; \
 cd /workspace/gcc-6.5.0/W0RK; \
 ../configure --target=x86_64-pc-linux-gnu --prefix=/opt/Cross64 \
 --mandir=/opt/NewRoot/share/man --infodir=/opt/NewRoot/share/info \
---with-sysroot=/opt/NewRoot --with-headers=/opt/NewRoot/include --includedir=/opt/NewRoot/include \
+--with-sysroot=/opt/NewRoot --with-headers=/opt/NewRoot/include --includedir=/opt/NewRoot/include --libdir=/opt/NewRoot/lib64 \
 --enable-ld=yes --enable-gold=no --enable-obsolete \
 --enable-threads=posix --enable-checking=release \
 --enable-__cxa_atexit --disable-libunwind-exceptions --with-tune=generic \
@@ -232,7 +232,7 @@ ln -sdf '/workspace/isl-0.14' '/workspace/gcc-6.5.0/isl'; \
 cd /workspace/gcc-6.5.0/W0RK; \
 ../configure --target=x86_64-pc-linux-gnu --prefix=/opt/Cross64 \
 --mandir=/opt/NewRoot/share/man --infodir=/opt/NewRoot/share/info \
---with-sysroot=/opt/NewRoot --with-headers=/opt/NewRoot/include --includedir=/opt/NewRoot/include \
+--with-sysroot=/opt/NewRoot --with-headers=/opt/NewRoot/include --includedir=/opt/NewRoot/include --libdir=/opt/NewRoot/lib64 \
 --enable-ld=yes --enable-gold=no --enable-obsolete \
 --enable-threads=posix --enable-checking=release \
 --enable-__cxa_atexit --disable-libunwind-exceptions --with-tune=generic \
@@ -285,7 +285,7 @@ ln -sdf '/workspace/isl-0.14' '/workspace/gcc-6.5.0/isl'; \
 cd /workspace/gcc-6.5.0/W0RK; \
 ../configure --target=x86_64-pc-linux-gnu --prefix=/opt/Cross64 \
 --mandir=/opt/NewRoot/share/man --infodir=/opt/NewRoot/share/info \
---with-sysroot=/opt/NewRoot --with-headers=/opt/NewRoot/include --includedir=/opt/NewRoot/include \
+--with-sysroot=/opt/NewRoot --with-headers=/opt/NewRoot/include --includedir=/opt/NewRoot/include --with-multilib-list=m32,m64 \
 --enable-ld=yes --enable-gold=no --enable-obsolete \
 --enable-threads=posix --enable-checking=release \
 --enable-__cxa_atexit --disable-libunwind-exceptions --with-tune=generic \
