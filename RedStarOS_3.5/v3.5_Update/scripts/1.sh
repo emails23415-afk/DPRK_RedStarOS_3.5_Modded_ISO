@@ -136,7 +136,7 @@ CleanUp isl-0.14"
 CustomInstall glibc-2.23 xz "For Cross-x86_64 (Bootstrap Stage 1)" "W0RK" \
 "../configure --prefix=/opt/NewRoot/usr --mandir=/opt/NewRoot/share/man --infodir=/opt/NewRoot/share/info \
 --host=x86_64-pc-linux-gnu --with-sysroot=/opt/NewRoot \
---with-headers=/opt/NewRoot/include --includedir=/opt/NewRoot/include \
+--with-headers=/opt/NewRoot/include --includedir=/opt/NewRoot/include --libdir=/opt/NewRoot/lib64 \
 --enable-shared --enable-profile --enable-multi-arch --enable-obsolete-rpc --enable-mathvec --disable-werror \
 libc_cv_forced_unwind=yes libc_cv_c_cleanup=yes" \
 "nop" \
@@ -144,7 +144,7 @@ libc_cv_forced_unwind=yes libc_cv_c_cleanup=yes" \
 CustomInstall glibc-2.23 xz "For Cross-x86_64 (Bootstrap Stage 1)" "W0RK" \
 "../configure --prefix=/opt/NewRoot/usr --mandir=/opt/NewRoot/share/man --infodir=/opt/NewRoot/share/info \
 --host=x86_64-pc-linux-gnu --with-sysroot=/opt/NewRoot \
---with-headers=/opt/NewRoot/include --includedir=/opt/NewRoot/include \
+--with-headers=/opt/NewRoot/include --includedir=/opt/NewRoot/include --libdir=/opt/NewRoot/lib64 \
 --enable-shared --enable-profile --enable-multi-arch --enable-obsolete-rpc --enable-mathvec --disable-werror \
 libc_cv_forced_unwind=yes libc_cv_c_cleanup=yes" \
 "make csu/subdir_lib -j$(grep -c ^processor /proc/cpuinfo)" \
@@ -213,7 +213,7 @@ export CXXFLAGS="-O2 -g -fno-common -fno-stack-protector"
 CustomInstall glibc-2.23 xz "For Cross-x86_64 (Bootstrap Stage 4)" "W0RK" \
 "../configure --prefix=/opt/NewRoot/usr --mandir=/opt/NewRoot/share/man --infodir=/opt/NewRoot/share/info \
 --host=x86_64-pc-linux-gnu --with-sysroot=/opt/NewRoot \
---with-headers=/opt/NewRoot/include --includedir=/opt/NewRoot/include \
+--with-headers=/opt/NewRoot/include --includedir=/opt/NewRoot/include --libdir=/opt/NewRoot/lib64 \
 --enable-shared --enable-profile --enable-multi-arch --enable-obsolete-rpc --enable-mathvec --disable-werror \
 libc_cv_forced_unwind=yes libc_cv_c_cleanup=yes" \
 "make all -j$(grep -c ^processor /proc/cpuinfo)" \
@@ -254,7 +254,7 @@ export CXXFLAGS="-O2 -g -fno-common"
 CustomInstall glibc-2.23 xz "For Cross-x86_64 (Final Stage)" "W0RK" \
 "../configure --prefix=/opt/NewRoot/usr --mandir=/opt/NewRoot/share/man --infodir=/opt/NewRoot/share/info \
 --host=x86_64-pc-linux-gnu --with-sysroot=/opt/NewRoot \
---with-headers=/opt/NewRoot/include --includedir=/opt/NewRoot/include \
+--with-headers=/opt/NewRoot/include --includedir=/opt/NewRoot/include --libdir=/opt/NewRoot/lib64 \
 --enable-shared --enable-profile --enable-multi-arch --enable-obsolete-rpc --enable-mathvec --disable-werror \
 libc_cv_forced_unwind=yes libc_cv_c_cleanup=yes" \
 "make all -j$(grep -c ^processor /proc/cpuinfo)" \
@@ -264,9 +264,9 @@ unset CXXFLAGS
 export CFLAGS="-O2 -g -fno-common"
 export CXXFLAGS="-O2 -g -fno-common"
 CustomInstall glibc-2.23 xz "For Cross-x86_64 (multilib support)" "W0RK" \
-"../configure --prefix=/opt/NewRoot/usr --mandir=/opt/NewRoot/share/man --infodir=/opt/NewRoot/share/info --libdir=/opt/NewRoot/lib \
+"../configure --prefix=/opt/NewRoot/usr --mandir=/opt/NewRoot/share/man --infodir=/opt/NewRoot/share/info \
 --host=i686-pc-linux-gnu --with-sysroot=/opt/NewRoot \
---with-headers=/opt/NewRoot/include --includedir=/opt/NewRoot/include \
+--with-headers=/opt/NewRoot/include --includedir=/opt/NewRoot/include --libdir=/opt/NewRoot/lib \
 --enable-shared --enable-profile --enable-multi-arch --enable-obsolete-rpc --enable-mathvec --disable-werror \
 libc_cv_forced_unwind=yes libc_cv_c_cleanup=yes" \
 "make all -j$(grep -c ^processor /proc/cpuinfo)" \
