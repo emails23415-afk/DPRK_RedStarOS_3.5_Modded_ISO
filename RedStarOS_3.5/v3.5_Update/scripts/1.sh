@@ -148,7 +148,7 @@ CustomInstall glibc-2.23 xz "For Cross-x86_64 (Bootstrap Stage 1)" "W0RK" \
 --enable-shared --enable-profile --enable-multi-arch --enable-obsolete-rpc --enable-mathvec --disable-werror \
 libc_cv_forced_unwind=yes libc_cv_c_cleanup=yes" \
 "make csu/subdir_lib -j$(grep -c ^processor /proc/cpuinfo)" \
-"install csu/crt1.o csu/crti.o csu/crtn.o /opt/Cross64/x86_64-linux-gnu/lib"
+"install csu/*.o /opt/Cross64/x86_64-pc-linux-gnu/lib"
 touch /opt/NewRoot/include/gnu/stubs.h
 CustomInstall gcc-6.5.0 xz "For Cross-x86_64 (Bootstrap Stage 2)" "W0RK" \
 "Extract gmp-4.3.2 bz2; \
