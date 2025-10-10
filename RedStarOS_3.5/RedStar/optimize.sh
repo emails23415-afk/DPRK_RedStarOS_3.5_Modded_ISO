@@ -43,7 +43,7 @@ set +x
 title "Optimization Completed! "
 echo
 echo
-for ((i = 5; i > 0; i--)); do
+for ((i = 10; i > 0; i--)); do
 echo -ne "Press any key in $i to abort automatic reboot... \r"
 if read -rs -n 1 -t 1; then
 echo -e "\nReboot aborted. "

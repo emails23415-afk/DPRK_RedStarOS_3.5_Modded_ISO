@@ -578,7 +578,7 @@ echo "Terminal=false" >> '/root/Desktop/v3.5 Update Combo/scripts/next.desktop' 
 echo "Name=v3.5 Update Combo" >> '/root/Desktop/v3.5 Update Combo/scripts/next.desktop' || return 1
 echo "Categories=Applocation" >> '/root/Desktop/v3.5 Update Combo/scripts/next.desktop' || return 1
 set +x
-for ((i = 5; i > 0; i--)); do
+for ((i = 10; i > 0; i--)); do
 echo -ne "Press any key in $i to abort automatic reboot... \r"
 if read -rs -n 1 -t 1; then
 echo -e "\nReboot aborted. "
