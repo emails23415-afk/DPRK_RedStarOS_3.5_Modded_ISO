@@ -116,7 +116,7 @@ ln -sdf '/workspace/isl-0.14' '/workspace/gcc-6.5.0/isl'; \
 cd /workspace/gcc-6.5.0/W0RK; \
 ../configure --target=x86_64-pc-linux-gnu --prefix=/opt/Cross64 \
 --mandir=/opt/NewRoot/share/man --infodir=/opt/NewRoot/share/info \
---with-sysroot=/opt/NewRoot --without-headers --includedir=/opt/NewRoot/include --libdir=/opt/Cross64/x86_64-pc-linux-gnu/lib \
+--with-sysroot=/opt/NewRoot --without-headers --includedir=/opt/NewRoot/include --with-multilib-list=m32,m64 \
 --enable-ld=yes --enable-gold=no --enable-obsolete \
 --enable-threads=posix --enable-checking=release --enable-bootstrap \
 --enable-__cxa_atexit --disable-libunwind-exceptions --with-tune=generic \
@@ -136,7 +136,7 @@ CleanUp isl-0.14"
 CustomInstall glibc-2.23 xz "For Cross-x86_64 (Bootstrap Stage 1)" "W0RK" \
 "../configure --prefix=/opt/NewRoot/usr --mandir=/opt/NewRoot/share/man --infodir=/opt/NewRoot/share/info \
 --host=x86_64-pc-linux-gnu --with-sysroot=/opt/NewRoot \
---with-headers=/opt/NewRoot/include --includedir=/opt/NewRoot/include --libdir=/opt/Cross64/x86_64-pc-linux-gnu/lib \
+--with-headers=/opt/NewRoot/include --includedir=/opt/NewRoot/include \
 --enable-shared --enable-profile --enable-multi-arch --enable-obsolete-rpc --enable-mathvec --disable-werror \
 libc_cv_forced_unwind=yes libc_cv_c_cleanup=yes" \
 "nop" \
@@ -144,7 +144,7 @@ libc_cv_forced_unwind=yes libc_cv_c_cleanup=yes" \
 CustomInstall glibc-2.23 xz "For Cross-x86_64 (Bootstrap Stage 1)" "W0RK" \
 "../configure --prefix=/opt/NewRoot/usr --mandir=/opt/NewRoot/share/man --infodir=/opt/NewRoot/share/info \
 --host=x86_64-pc-linux-gnu --with-sysroot=/opt/NewRoot \
---with-headers=/opt/NewRoot/include --includedir=/opt/NewRoot/include --libdir=/opt/Cross64/x86_64-pc-linux-gnu/lib \
+--with-headers=/opt/NewRoot/include --includedir=/opt/NewRoot/include \
 --enable-shared --enable-profile --enable-multi-arch --enable-obsolete-rpc --enable-mathvec --disable-werror \
 libc_cv_forced_unwind=yes libc_cv_c_cleanup=yes" \
 "make csu/subdir_lib -j$(grep -c ^processor /proc/cpuinfo)" \
@@ -162,7 +162,7 @@ ln -sdf '/workspace/isl-0.14' '/workspace/gcc-6.5.0/isl'; \
 cd /workspace/gcc-6.5.0/W0RK; \
 ../configure --target=x86_64-pc-linux-gnu --prefix=/opt/Cross64 \
 --mandir=/opt/NewRoot/share/man --infodir=/opt/NewRoot/share/info \
---with-sysroot=/opt/NewRoot --with-headers=/opt/NewRoot/include --includedir=/opt/NewRoot/include --libdir=/opt/Cross64/x86_64-pc-linux-gnu/lib \
+--with-sysroot=/opt/NewRoot --with-headers=/opt/NewRoot/include --includedir=/opt/NewRoot/include --with-multilib-list=m32,m64 \
 --enable-ld=yes --enable-gold=no --enable-obsolete \
 --enable-threads=posix --enable-checking=release \
 --enable-__cxa_atexit --disable-libunwind-exceptions --with-tune=generic \
@@ -191,7 +191,7 @@ ln -sdf '/workspace/isl-0.14' '/workspace/gcc-6.5.0/isl'; \
 cd /workspace/gcc-6.5.0/W0RK; \
 ../configure --target=x86_64-pc-linux-gnu --prefix=/opt/Cross64 \
 --mandir=/opt/NewRoot/share/man --infodir=/opt/NewRoot/share/info \
---with-sysroot=/opt/NewRoot --with-headers=/opt/NewRoot/include --includedir=/opt/NewRoot/include --libdir=/opt/NewRoot/lib64 \
+--with-sysroot=/opt/NewRoot --with-headers=/opt/NewRoot/include --includedir=/opt/NewRoot/include --with-multilib-list=m32,m64 \
 --enable-ld=yes --enable-gold=no --enable-obsolete \
 --enable-threads=posix --enable-checking=release \
 --enable-__cxa_atexit --disable-libunwind-exceptions --with-tune=generic \
