@@ -266,30 +266,26 @@ CleanUp isl-0.14"
 export CFLAGS="-O2 -g -fno-common"
 export CXXFLAGS="-O2 -g -fno-common"
 CustomInstall glibc-2.23 xz "For Cross-x86_64 (Final Stage)" "W0RK" \
-"Cross64EnvSetup; \
-../configure --prefix=/opt/NewRoot/usr --mandir=/opt/NewRoot/share/man --infodir=/opt/NewRoot/share/info \
+"../configure --prefix=/opt/NewRoot/usr --mandir=/opt/NewRoot/share/man --infodir=/opt/NewRoot/share/info \
 --host=x86_64-pc-linux-gnu --with-sysroot=/opt/NewRoot \
 --with-headers=/opt/NewRoot/usr/include --includedir=/opt/NewRoot/usr/include --libdir=/opt/NewRoot/usr/lib64 \
 --enable-shared --enable-profile --enable-multi-arch --enable-obsolete-rpc --enable-mathvec --disable-werror \
 libc_cv_forced_unwind=yes libc_cv_c_cleanup=yes" \
 "make all -j$(grep -c ^processor /proc/cpuinfo)" \
-"make install; \
-Cross64EnvCleanUp"
+"make install"
 rm -f '/opt/NewRoot/lib'
 mv -vf '/opt/NewRoot/lib64' '/opt/NewRoot/lib644'
 rm -f '/opt/NewRoot/lib64'
 ln -sdf '/opt/NewRoot/lib' '/opt/NewRoot/lib64'
 ln -sdf '/opt/NewRoot/lib' '/opt/NewRoot/lib32'
 CustomInstall glibc-2.23 xz "For Cross-x86_64 (MultiLib Support)" "W0RK" \
-"Cross64EnvSetup; \
-../configure --prefix=/opt/NewRoot/usr --mandir=/opt/NewRoot/share/man --infodir=/opt/NewRoot/share/info \
+"../configure --prefix=/opt/NewRoot/usr --mandir=/opt/NewRoot/share/man --infodir=/opt/NewRoot/share/info \
 --host=i686-pc-linux-gnu --with-sysroot=/opt/NewRoot \
 --with-headers=/opt/NewRoot/usr/include --includedir=/opt/NewRoot/usr/include --libdir=/opt/NewRoot/usr/lib \
 --enable-shared --enable-profile --enable-multi-arch --enable-obsolete-rpc --enable-mathvec --disable-werror \
 libc_cv_forced_unwind=yes libc_cv_c_cleanup=yes" \
 "make all -j$(grep -c ^processor /proc/cpuinfo)" \
-"make install; \
-Cross64EnvCleanUp"
+"make install"
 unset CFLAGS
 unset CXXFLAGS
 rm -f '/opt/NewRoot/lib64'
