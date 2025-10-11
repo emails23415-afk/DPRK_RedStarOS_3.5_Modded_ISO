@@ -31,7 +31,7 @@ Install gcc-6.5.0 xz --mandir=/usr/share/man --infodir=/usr/share/info \
 --enable-libiberty --enable-libitm --enable-libjava --enable-libmpx --enable-libobjc --enable-libsanitizer \
 --enable-libquadmath --enable-libssp --enable-libstdcxx --enable-libvtv --enable-libquadmath-support \
 --enable-libgcj --enable-static-libjava=unicows --enable-objc-gc --enable-vtable-verify \
---enable-lto --enable-tls --enable-nls --enable-cld
+--enable-lto --enable-tls --enable-nls
 Install gdb-7.12 xz --mandir=/usr/share/man --infodir=/usr/share/info \
 --enable-ld=yes --enable-gold=no --enable-obsolete \
 --enable-threads=posix --enable-checking=release --with-system-zlib \
@@ -42,7 +42,7 @@ Install gdb-7.12 xz --mandir=/usr/share/man --infodir=/usr/share/info \
 --enable-libiberty --enable-libitm --enable-libjava --enable-libmpx --enable-libobjc --enable-libsanitizer \
 --enable-libquadmath --enable-libssp --enable-libstdcxx --enable-libvtv --enable-libquadmath-support \
 --enable-libgcj --enable-static-libjava=unicows --enable-objc-gc --enable-vtable-verify \
---enable-lto --enable-tls --enable-nls --enable-cld
+--enable-lto --enable-tls --enable-nls
 Install binutils-2.34 xz --mandir=/usr/share/man --infodir=/usr/share/info \
 --enable-ld=yes --enable-gold=no --enable-obsolete \
 --enable-threads=posix --enable-checking=release --with-system-zlib \
@@ -53,7 +53,7 @@ Install binutils-2.34 xz --mandir=/usr/share/man --infodir=/usr/share/info \
 --enable-libiberty --enable-libitm --enable-libjava --enable-libmpx --enable-libobjc --enable-libsanitizer \
 --enable-libquadmath --enable-libssp --enable-libstdcxx --enable-libvtv --enable-libquadmath-support \
 --enable-libgcj --enable-static-libjava=unicows --enable-objc-gc --enable-vtable-verify \
---enable-lto --enable-tls --enable-nls --enable-cld
+--enable-lto --enable-tls --enable-nls
 Install ncurses-6.0 gz --with-ada --enable-ext-colors --enable-ext-mouse
 Install gmp-6.2.1 bz2 --enable-cxx --enable-shared
 Install mpfr-4.1.0 bz2 --enable-shared
@@ -97,7 +97,7 @@ InstallCross64 binutils-2.34 xz --mandir=/opt/NewRoot/share/man --infodir=/opt/N
 --enable-libiberty --enable-libitm --enable-libjava --enable-libmpx --enable-libobjc --enable-libsanitizer \
 --enable-libquadmath --enable-libssp --enable-libstdcxx --enable-libvtv --enable-libquadmath-support \
 --enable-libgcj --enable-static-libjava=unicows --enable-objc-gc --enable-vtable-verify \
---enable-lto --enable-tls --enable-nls --enable-cld
+--enable-lto --enable-tls --enable-nls
 rm -f '/opt/NewRoot/usr'
 ln -sdf '/opt/NewRoot' '/opt/NewRoot/usr'
 rm -f '/opt/NewRoot/opt'
@@ -137,7 +137,7 @@ cd /workspace/gcc-6.5.0/W0RK; \
 --enable-libiberty --enable-libitm --enable-libjava --enable-libmpx --enable-libobjc --enable-libsanitizer \
 --enable-libquadmath --enable-libssp --enable-libstdcxx --enable-libvtv --enable-libquadmath-support \
 --enable-libgcj --enable-static-libjava=unicows --enable-objc-gc --enable-vtable-verify \
---enable-lto --enable-tls --enable-nls --enable-cld" \
+--enable-lto --enable-tls --enable-nls" \
 "make all-gcc -j$(grep -c ^processor /proc/cpuinfo)" \
 "make install-gcc; \
 CleanUp gmp-4.3.2; \
@@ -184,7 +184,7 @@ cd /workspace/gcc-6.5.0/W0RK; \
 --enable-libiberty --enable-libitm --enable-libjava --enable-libmpx --enable-libobjc --enable-libsanitizer \
 --enable-libquadmath --enable-libssp --enable-libstdcxx --enable-libvtv --enable-libquadmath-support \
 --enable-libgcj --enable-static-libjava=unicows --enable-objc-gc --enable-vtable-verify \
---enable-lto --enable-tls --enable-nls --enable-cld" \
+--enable-lto --enable-tls --enable-nls" \
 "make all-target-libgcc -j$(grep -c ^processor /proc/cpuinfo)" \
 "make install-target-libgcc; \
 CleanUp gmp-4.3.2; \
@@ -214,7 +214,7 @@ cd /workspace/gcc-6.5.0/W0RK; \
 --enable-libiberty --enable-libitm --enable-libjava --disable-libmpx --disable-libobjc --enable-libsanitizer \
 --disable-libquadmath --disable-libssp --disable-libstdcxx --disable-libvtv --enable-libquadmath-support \
 --enable-libgcj --enable-static-libjava=unicows --disable-objc-gc --enable-vtable-verify \
---enable-lto --enable-tls --enable-nls --enable-cld" \
+--enable-lto --enable-tls --enable-nls" \
 "make all -j$(grep -c ^processor /proc/cpuinfo)" \
 "make install; \
 CleanUp gmp-4.3.2; \
@@ -256,7 +256,7 @@ cd /workspace/gcc-6.5.0/W0RK; \
 --enable-libiberty --disable-libitm --enable-libjava --enable-libmpx --enable-libobjc --enable-libsanitizer \
 --enable-libquadmath --enable-libssp --enable-libstdcxx --disable-libvtv --enable-libquadmath-support \
 --enable-libgcj --enable-static-libjava=unicows --enable-objc-gc --enable-vtable-verify \
---enable-lto --enable-tls --enable-nls --enable-cld" \
+--enable-lto --enable-tls --enable-nls" \
 "make all-target -j$(grep -c ^processor /proc/cpuinfo)" \
 "make install-target; \
 CleanUp gmp-4.3.2; \
@@ -314,7 +314,7 @@ Cross64EnvSetup; \
 --enable-libiberty --enable-libitm --enable-libjava --enable-libmpx --enable-libobjc --enable-libsanitizer \
 --enable-libquadmath --enable-libssp --enable-libstdcxx --enable-libvtv --enable-libquadmath-support \
 --enable-libgcj --enable-static-libjava=unicows --enable-objc-gc --enable-vtable-verify \
---enable-lto --enable-tls --enable-nls --enable-cld" \
+--enable-lto --enable-tls --enable-nls" \
 "make all -j$(grep -c ^processor /proc/cpuinfo)" \
 "make check && make install; \
 Cross64EnvCleanUp; \
