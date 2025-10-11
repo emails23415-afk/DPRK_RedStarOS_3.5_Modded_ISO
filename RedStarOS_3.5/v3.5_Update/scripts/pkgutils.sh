@@ -181,6 +181,22 @@ shift 2 || return 1
 InstallEngine "${Package}" "${Format}" '1' "For Host" "--prefix=" "${@}" || return 1
 return 0
 }
+Cross64EnvSetup() {
+set -x
+export CROSS_PREFIX=/opt/Cross64 || return 1
+export TARGET=x86_64-pc-linux-gnu || return 1
+export SYSROOT=/opt/NewRoot || return 1
+export LIBRARY_PATH=${SYSROOT}/lib64:${SYSROOT}/lib32:${SYSROOT}/lib:${CROSS_PREFIX}/${TARGET}/lib64:${CROSS_PREFIX}/${TARGET}/lib:/usr/lib/:/lib || return 1
+return 0
+}
+Cross64EnvCleanUp() {
+set -x
+unset CROSS_PREFIX || return 1
+unset TARGET || return 1
+unset SYSROOT || return 1
+unset LIBRARY_PATH || return 1
+return 0
+}
 InstallCross64() {
 set -x
 local Package="${1}" || return 1
@@ -218,7 +234,9 @@ set -x
 local Package="${1}" || return 1
 local Format="${2}" || return 1
 shift 2 || return 1
+Cross64EnvSetup || return 1
 InstallEngine "${Package}" "${Format}" "$(grep -c ^processor /proc/cpuinfo)" "For Cross-x86_64" "--host=x86_64-pc-linux-gnu --prefix=/opt/Cross64 --with-sysroot=/opt/NewRoot" "${@}" || return 1
+Cross64EnvCleanUp || return 1
 return 0
 }
 InstallCross64AltJ1() {
@@ -226,7 +244,9 @@ set -x
 local Package="${1}" || return 1
 local Format="${2}" || return 1
 shift 2 || return 1
+Cross64EnvSetup || return 1
 InstallEngine "${Package}" "${Format}" '1' "For Cross-x86_64" "--host=x86_64-pc-linux-gnu --prefix=/opt/Cross64 --with-sysroot=/opt/NewRoot" "${@}" || return 1
+Cross64EnvCleanUp || return 1
 return 0
 }
 InstallCross64RootAlt() {
@@ -234,7 +254,9 @@ set -x
 local Package="${1}" || return 1
 local Format="${2}" || return 1
 shift 2 || return 1
+Cross64EnvSetup || return 1
 InstallEngine "${Package}" "${Format}" "$(grep -c ^processor /proc/cpuinfo)" "For Cross-x86_64" "--host=x86_64-pc-linux-gnu --prefix=/opt/NewRoot --with-sysroot=/opt/NewRoot" "${@}" || return 1
+Cross64EnvCleanUp || return 1
 return 0
 }
 InstallCross64RootAltJ1() {
@@ -242,13 +264,17 @@ set -x
 local Package="${1}" || return 1
 local Format="${2}" || return 1
 shift 2 || return 1
+Cross64EnvSetup || return 1
 InstallEngine "${Package}" "${Format}" '1' "For Cross-x86_64" "--host=x86_64-pc-linux-gnu --prefix=/opt/NewRoot --with-sysroot=/opt/NewRoot" "${@}" || return 1
+Cross64EnvCleanUp || return 1
 return 0
 }
 Native64EnvSetup() {
 set -x
 export CROSS_PREFIX=/opt/Cross64 || return 1
 export TARGET=x86_64-pc-linux-gnu || return 1
+export SYSROOT=/opt/NewRoot || return 1
+export LIBRARY_PATH=${SYSROOT}/lib64:${SYSROOT}/lib32:${SYSROOT}/lib:/usr/lib/:/lib || return 1
 export CC=${CROSS_PREFIX}/bin/${TARGET}-gcc || return 1
 export GCC=${CROSS_PREFIX}/bin/${TARGET}-gcc || return 1
 export CXX=${CROSS_PREFIX}/bin/${TARGET}-g++ || return 1
@@ -301,6 +327,8 @@ Native64EnvCleanUp() {
 set -x
 unset CROSS_PREFIX || return 1
 unset TARGET || return 1
+unset SYSROOT || return 1
+unset LIBRARY_PATH || return 1
 unset CC || return 1
 unset GCC || return 1
 unset CXX || return 1
@@ -457,7 +485,9 @@ set -x
 local Package="${1}" || return 1
 local Format="${2}" || return 1
 shift 2 || return 1
+Cross64EnvSetup || return 1
 RemoveEngine "${Package}" "${Format}" "For Cross-x86_64" "--host=x86_64-pc-linux-gnu --prefix=/opt/Cross64" "${@}" || return 1
+Cross64EnvCleanUp || return 1
 return 0
 }
 RemoveCross64RootAlt() {
@@ -465,7 +495,9 @@ set -x
 local Package="${1}" || return 1
 local Format="${2}" || return 1
 shift 2 || return 1
+Cross64EnvSetup || return 1
 RemoveEngine "${Package}" "${Format}" "For Cross-x86_64" "--host=x86_64-pc-linux-gnu --prefix=/opt/NewRoot" "${@}" || return 1
+Cross64EnvCleanUp || return 1
 return 0
 }
 RemoveNative64() {
@@ -595,6 +627,6 @@ echo -e "\nRebooting now... "
 sleep 1
 reboot
 }
-export PATH=/opt/Cross64/bin:$PATH
+export PATH=/opt/Cross64/bin:/opt/NewRoot/usr/bin:/opt/NewRoot/usr/sbin:$PATH
 trap 'operationerror' ERR
 set +e
