@@ -94,6 +94,12 @@ InstallCross64 binutils-2.34 xz --mandir=/opt/NewRoot/share/man --infodir=/opt/N
 --enable-libiberty --enable-libitm --enable-libjava --enable-libmpx --enable-libobjc --enable-libsanitizer \
 --enable-libquadmath --enable-libssp --enable-libstdcxx --enable-libvtv --enable-libquadmath-support \
 --enable-libgcj --enable-static-libjava=unicows --enable-lto --enable-tls --enable-objc-gc --enable-vtable-verify
+rm -f '/opt/NewRoot/usr'
+ln -sdf '/opt/NewRoot' '/opt/NewRoot/usr'
+rm -f '/opt/NewRoot/opt'
+ln -sdf '/opt' '/opt/NewRoot/opt'
+rm -f '/opt/NewRoot/lib'
+ln -sdf '/opt/NewRoot/lib64' '/opt/NewRoot/lib'
 title Installing Kernel 3.19.8 For Cross-x86_64 \[Extracting\]
 cd /usr/src/kernels
 tar xvf "/root/Desktop/v3.5 Update Combo/packages/linux-3.19.8.tar.xz"
@@ -101,9 +107,8 @@ cd /usr/src/kernels/linux-3.19.8
 title Installing Kernel 3.19.8 For Cross-x86_64 \[Deploying Headers\]
 make mrproper ARCH=x86_64
 make headers_install ARCH=x86_64 INSTALL_HDR_PATH=/opt/NewRoot/usr
-rm -f '/opt/NewRoot/usr'
-ln -sdf '/opt/NewRoot' '/opt/NewRoot/usr'
-ln -sdf '/opt' '/opt/NewRoot/opt'
+cp -rnv /opt/Cross64/i686-pc-linux-gnu/x86_64-pc-linux-gnu/* /opt/Cross64/x86_64-pc-linux-gnu/
+cp -rnv /opt/Cross64/x86_64-pc-linux-gnu/lib/* /opt/Cross64/x86_64-pc-linux-gnu/lib64/
 CustomInstall gcc-6.5.0 xz "For Cross-x86_64 (Bootstrap Stage 1)" "W0RK" \
 "Extract gmp-4.3.2 bz2; \
 Extract mpfr-2.4.2 bz2; \
@@ -116,7 +121,7 @@ ln -sdf '/workspace/isl-0.14' '/workspace/gcc-6.5.0/isl'; \
 cd /workspace/gcc-6.5.0/W0RK; \
 ../configure --target=x86_64-pc-linux-gnu --prefix=/opt/Cross64 \
 --mandir=/opt/NewRoot/share/man --infodir=/opt/NewRoot/share/info \
---with-sysroot=/opt/NewRoot --without-headers --includedir=/opt/NewRoot/usr/include --libdir=/opt/NewRoot/usr/lib64 --with-multilib-list=m32,m64 \
+--with-sysroot=/opt/NewRoot --without-headers --includedir=/opt/NewRoot/usr/include --libdir=/opt/Cross64/x86_64-pc-linux-gnu/lib64 \
 --enable-ld=yes --enable-gold=no --enable-obsolete \
 --enable-threads=posix --enable-checking=release --enable-bootstrap \
 --enable-__cxa_atexit --disable-libunwind-exceptions --with-tune=generic \
@@ -135,7 +140,7 @@ CleanUp mpc-0.8.1; \
 CleanUp isl-0.14"
 CustomInstall glibc-2.23 xz "For Cross-x86_64 (Bootstrap Stage 1)" "W0RK" \
 "../configure --prefix=/opt/NewRoot/usr --mandir=/opt/NewRoot/share/man --infodir=/opt/NewRoot/share/info \
---host=x86_64-pc-linux-gnu --with-sysroot=/opt/NewRoot \
+--host=x86_64-pc-linux-gnu --with-sysroot=/opt/NewRoot --libdir=/opt/Cross64/x86_64-pc-linux-gnu/lib64 \
 --with-headers=/opt/NewRoot/usr/include --includedir=/opt/NewRoot/usr/include \
 --enable-shared --enable-profile --enable-multi-arch --enable-obsolete-rpc --enable-mathvec --disable-werror \
 libc_cv_forced_unwind=yes libc_cv_c_cleanup=yes" \
@@ -143,12 +148,12 @@ libc_cv_forced_unwind=yes libc_cv_c_cleanup=yes" \
 "make install-headers install-bootstrap-headers=yes"
 CustomInstall glibc-2.23 xz "For Cross-x86_64 (Bootstrap Stage 1)" "W0RK" \
 "../configure --prefix=/opt/NewRoot/usr --mandir=/opt/NewRoot/share/man --infodir=/opt/NewRoot/share/info \
---host=x86_64-pc-linux-gnu --with-sysroot=/opt/NewRoot \
+--host=x86_64-pc-linux-gnu --with-sysroot=/opt/NewRoot --libdir=/opt/Cross64/x86_64-pc-linux-gnu/lib64 \
 --with-headers=/opt/NewRoot/usr/include --includedir=/opt/NewRoot/usr/include \
 --enable-shared --enable-profile --enable-multi-arch --enable-obsolete-rpc --enable-mathvec --disable-werror \
 libc_cv_forced_unwind=yes libc_cv_c_cleanup=yes" \
 "make csu/subdir_lib -j$(grep -c ^processor /proc/cpuinfo)" \
-"install csu/* /opt/Cross64/x86_64-pc-linux-gnu/lib64"
+"install csu/crt*.o /opt/Cross64/x86_64-pc-linux-gnu/lib64"
 touch /opt/NewRoot/usr/include/gnu/stubs.h
 CustomInstall gcc-6.5.0 xz "For Cross-x86_64 (Bootstrap Stage 2)" "W0RK" \
 "Extract gmp-4.3.2 bz2; \
@@ -162,7 +167,7 @@ ln -sdf '/workspace/isl-0.14' '/workspace/gcc-6.5.0/isl'; \
 cd /workspace/gcc-6.5.0/W0RK; \
 ../configure --target=x86_64-pc-linux-gnu --prefix=/opt/Cross64 \
 --mandir=/opt/NewRoot/share/man --infodir=/opt/NewRoot/share/info \
---with-sysroot=/opt/NewRoot --with-headers=/opt/NewRoot/usr/include --includedir=/opt/NewRoot/usr/include --libdir=/opt/NewRoot/usr/lib64 --with-multilib-list=m32,m64 \
+--with-sysroot=/opt/NewRoot --with-headers=/opt/NewRoot/usr/include --includedir=/opt/NewRoot/usr/include --libdir=/opt/Cross64/x86_64-pc-linux-gnu/lib64 \
 --enable-ld=yes --enable-gold=no --enable-obsolete \
 --enable-threads=posix --enable-checking=release \
 --enable-__cxa_atexit --disable-libunwind-exceptions --with-tune=generic \
@@ -191,7 +196,7 @@ ln -sdf '/workspace/isl-0.14' '/workspace/gcc-6.5.0/isl'; \
 cd /workspace/gcc-6.5.0/W0RK; \
 ../configure --target=x86_64-pc-linux-gnu --prefix=/opt/Cross64 \
 --mandir=/opt/NewRoot/share/man --infodir=/opt/NewRoot/share/info \
---with-sysroot=/opt/NewRoot --with-headers=/opt/NewRoot/usr/include --includedir=/opt/NewRoot/usr/include --libdir=/opt/NewRoot/usr/lib64 --with-multilib-list=m32,m64 \
+--with-sysroot=/opt/NewRoot --with-headers=/opt/NewRoot/usr/include --includedir=/opt/NewRoot/usr/include --with-multilib-list=m32,m64 \
 --enable-ld=yes --enable-gold=no --enable-obsolete \
 --enable-threads=posix --enable-checking=release \
 --enable-__cxa_atexit --disable-libunwind-exceptions --with-tune=generic \
@@ -259,6 +264,11 @@ CustomInstall glibc-2.23 xz "For Cross-x86_64 (Final Stage)" "W0RK" \
 libc_cv_forced_unwind=yes libc_cv_c_cleanup=yes" \
 "make all -j$(grep -c ^processor /proc/cpuinfo)" \
 "make install"
+rm -f '/opt/NewRoot/lib'
+mv -vf '/opt/NewRoot/lib64' '/opt/NewRoot/lib644'
+rm -f '/opt/NewRoot/lib64'
+ln -sdf '/opt/NewRoot/lib' '/opt/NewRoot/lib64'
+ln -sdf '/opt/NewRoot/lib' '/opt/NewRoot/lib32'
 CustomInstall glibc-2.23 xz "For Cross-x86_64 (multilib support)" "W0RK" \
 "../configure --prefix=/opt/NewRoot/usr --mandir=/opt/NewRoot/share/man --infodir=/opt/NewRoot/share/info \
 --host=i686-pc-linux-gnu --with-sysroot=/opt/NewRoot \
@@ -269,6 +279,8 @@ libc_cv_forced_unwind=yes libc_cv_c_cleanup=yes" \
 "make install"
 unset CFLAGS
 unset CXXFLAGS
+rm -f '/opt/NewRoot/lib64'
+mv -vf '/opt/NewRoot/lib644' '/opt/NewRoot/lib64'
 CustomInstall gcc-6.5.0 xz "For Cross-x86_64 (Final Stage)" "W0RK" \
 "Extract gmp-4.3.2 bz2; \
 Extract mpfr-2.4.2 bz2; \
@@ -281,7 +293,7 @@ ln -sdf '/workspace/isl-0.14' '/workspace/gcc-6.5.0/isl'; \
 cd /workspace/gcc-6.5.0/W0RK; \
 ../configure --target=x86_64-pc-linux-gnu --prefix=/opt/Cross64 \
 --mandir=/opt/NewRoot/share/man --infodir=/opt/NewRoot/share/info \
---with-sysroot=/opt/NewRoot --with-headers=/opt/NewRoot/usr/include --includedir=/opt/NewRoot/usr/include --libdir=/opt/NewRoot/usr/lib64 --with-multilib-list=m32,m64 \
+--with-sysroot=/opt/NewRoot --with-headers=/opt/NewRoot/usr/include --includedir=/opt/NewRoot/usr/include --with-multilib-list=m32,m64 \
 --enable-ld=yes --enable-gold=no --enable-obsolete \
 --enable-threads=posix --enable-checking=release \
 --enable-__cxa_atexit --disable-libunwind-exceptions --with-tune=generic \
