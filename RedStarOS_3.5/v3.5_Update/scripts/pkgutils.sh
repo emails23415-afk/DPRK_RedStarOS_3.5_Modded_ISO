@@ -100,12 +100,14 @@ local TitleText="${3}" || return 1
 local Subfolder="${4}" || return 1
 local ConfigureCommand="${5}" || return 1
 local MakeCommand="${6}" || return 1
-local DeployCommand="${7}" || return 1
-local TitlePostfixA="${8}" || return 1
-local TitlePostfixB="${9}" || return 1
-local TitlePostfixC="${10}" || return 1
-local TitlePostfixD="${11}" || return 1
-local TitlePostfixE="${12}" || return 1
+local CheckCommand="${7}" || return 1
+local DeployCommand="${8}" || return 1
+local TitlePostfixA="${9}" || return 1
+local TitlePostfixB="${10}" || return 1
+local TitlePostfixC="${11}" || return 1
+local TitlePostfixD="${12}" || return 1
+local TitlePostfixE="${13}" || return 1
+local TitlePostfixF="${14}" || return 1
 Extract "${Package}" "${Format}" "${TitleText} [${TitlePostfixA}]" || return 1
 if [[ -n "${Subfolder}" ]]; then
 mkdir "${Subfolder}" || return 1
@@ -116,8 +118,10 @@ eval ${ConfigureCommand} || return 1
 title "${TitleText} [${TitlePostfixC}]" || return 1
 eval ${MakeCommand} || return 1
 title "${TitleText} [${TitlePostfixD}]" || return 1
+eval ${CheckCommand} || return 1
+title "${TitleText} [${TitlePostfixE}]" || return 1
 eval ${DeployCommand}  || return 1
-CleanUp "${Package}" "${TitleText} [${TitlePostfixE}]" || return 1
+CleanUp "${Package}" "${TitleText} [${TitlePostfixF}]" || return 1
 return 0
 }
 InstallEngine() {
@@ -131,8 +135,25 @@ local TitleText="Installing ${Package} ${TitlePostfix}" || return 1
 local Subfolder="W0RK" || return 1
 local ConfigureCommand="../configure ${@}" || return 1
 local MakeCommand="make all -j${Thread}" || return 1
+local CheckCommand="make check" || return 1
 local DeployCommand="make install" || return 1
-InstallBase "${Package}" "${Format}" "${TitleText}" "${Subfolder}" "${ConfigureCommand}" "${MakeCommand}" "${DeployCommand}" 'Extracting' 'Configuring' 'Compiling' 'Deploying' 'Cleaning' || return 1
+InstallBase "${Package}" "${Format}" "${TitleText}" "${Subfolder}" "${ConfigureCommand}" "${MakeCommand}" "${CheckCommand}" "${DeployCommand}" 'Extracting' 'Configuring' 'Compiling' 'Validating' 'Deploying' 'Cleaning' || return 1
+return 0
+}
+InstallEngineNoCheck() {
+set -x
+local Package="${1}" || return 1
+local Format="${2}" || return 1
+local Thread="${3}" || return 1
+local TitlePostfix="${4}" || return 1
+shift 4 || return 1
+local TitleText="Installing ${Package} ${TitlePostfix}" || return 1
+local Subfolder="W0RK" || return 1
+local ConfigureCommand="../configure ${@}" || return 1
+local MakeCommand="make all -j${Thread}" || return 1
+local CheckCommand="nop" || return 1
+local DeployCommand="make install" || return 1
+InstallBase "${Package}" "${Format}" "${TitleText}" "${Subfolder}" "${ConfigureCommand}" "${MakeCommand}" "${CheckCommand}" "${DeployCommand}" 'Extracting' 'Configuring' 'Compiling' 'Validating' 'Deploying' 'Cleaning' || return 1
 return 0
 }
 CustomInstall() {
@@ -144,9 +165,10 @@ local TitleText="Installing ${Package} ${TitlePostfix}" || return 1
 local Subfolder="${4}" || return 1
 local ConfigureCommand="${5}" || return 1
 local MakeCommand="${6}" || return 1
-local DeployCommand="${7}" || return 1
+local CheckCommand="${7}" || return 1
+local DeployCommand="${8}" || return 1
 shift 7 || return 1
-InstallBase "${Package}" "${Format}" "${TitleText}" "${Subfolder}" "${ConfigureCommand}" "${MakeCommand}" "${DeployCommand}" 'Extracting' 'Configuring' 'Compiling' 'Deploying' 'Cleaning' || return 1
+InstallBase "${Package}" "${Format}" "${TitleText}" "${Subfolder}" "${ConfigureCommand}" "${MakeCommand}" "${CheckCommand}" "${DeployCommand}" 'Extracting' 'Configuring' 'Compiling' 'Validating' 'Deploying' 'Cleaning' || return 1
 return 0
 }
 Install() {
@@ -434,6 +456,190 @@ InstallEngine "${Package}" "${Format}" '1' "For Cross-x86_64-Native" "--prefix=/
 Native64EnvCleanUp || return 1
 return 0
 }
+InstallNoCheck() {
+set -x
+local Package="${1}" || return 1
+local Format="${2}" || return 1
+shift 2 || return 1
+InstallEngineNoCheck "${Package}" "${Format}" "$(grep -c ^processor /proc/cpuinfo)" "For Host" "--prefix=/usr" "${@}" || return 1
+return 0
+}
+InstallJ1NoCheck() {
+set -x
+local Package="${1}" || return 1
+local Format="${2}" || return 1
+shift 2 || return 1
+InstallEngineNoCheck "${Package}" "${Format}" '1' "For Host" "--prefix=/usr" "${@}" || return 1
+return 0
+}
+InstallRootNoCheck() {
+set -x
+local Package="${1}" || return 1
+local Format="${2}" || return 1
+shift 2 || return 1
+InstallEngineNoCheck "${Package}" "${Format}" "$(grep -c ^processor /proc/cpuinfo)" "For Host" "--prefix=" "${@}" || return 1
+return 0
+}
+InstallRootJ1NoCheck() {
+set -x
+local Package="${1}" || return 1
+local Format="${2}" || return 1
+shift 2 || return 1
+InstallEngineNoCheck "${Package}" "${Format}" '1' "For Host" "--prefix=" "${@}" || return 1
+return 0
+}
+InstallCross64NoCheck() {
+set -x
+local Package="${1}" || return 1
+local Format="${2}" || return 1
+shift 2 || return 1
+InstallEngineNoCheck "${Package}" "${Format}" "$(grep -c ^processor /proc/cpuinfo)" "For Cross-x86_64" "--target=x86_64-pc-linux-gnu --prefix=/opt/Cross64 --with-sysroot=/opt/NewRoot" "${@}" || return 1
+return 0
+}
+InstallCross64J1NoCheck() {
+set -x
+local Package="${1}" || return 1
+local Format="${2}" || return 1
+shift 2 || return 1
+InstallEngineNoCheck "${Package}" "${Format}" '1' "For Cross-x86_64" "--target=x86_64-pc-linux-gnu --prefix=/opt/Cross64 --with-sysroot=/opt/NewRoot" "${@}" || return 1
+return 0
+}
+InstallCross64RootNoCheck() {
+set -x
+local Package="${1}" || return 1
+local Format="${2}" || return 1
+shift 2 || return 1
+InstallEngineNoCheck "${Package}" "${Format}" "$(grep -c ^processor /proc/cpuinfo)" "For Cross-x86_64" "--target=x86_64-pc-linux-gnu --prefix=/opt/NewRoot --with-sysroot=/opt/NewRoot" "${@}" || return 1
+return 0
+}
+InstallCross64RootJ1NoCheck() {
+set -x
+local Package="${1}" || return 1
+local Format="${2}" || return 1
+shift 2 || return 1
+InstallEngineNoCheck "${Package}" "${Format}" '1' "For Cross-x86_64" "--target=x86_64-pc-linux-gnu --prefix=/opt/NewRoot --with-sysroot=/opt/NewRoot" "${@}" || return 1
+return 0
+}
+InstallCross64AltNoCheck() {
+set -x
+local Package="${1}" || return 1
+local Format="${2}" || return 1
+shift 2 || return 1
+Cross64EnvSetup || return 1
+InstallEngineNoCheck "${Package}" "${Format}" "$(grep -c ^processor /proc/cpuinfo)" "For Cross-x86_64" "--host=x86_64-pc-linux-gnu --prefix=/opt/Cross64 --with-sysroot=/opt/NewRoot" "${@}" || return 1
+Cross64EnvCleanUp || return 1
+return 0
+}
+InstallCross64AltJ1NoCheck() {
+set -x
+local Package="${1}" || return 1
+local Format="${2}" || return 1
+shift 2 || return 1
+Cross64EnvSetup || return 1
+InstallEngineNoCheck "${Package}" "${Format}" '1' "For Cross-x86_64" "--host=x86_64-pc-linux-gnu --prefix=/opt/Cross64 --with-sysroot=/opt/NewRoot" "${@}" || return 1
+Cross64EnvCleanUp || return 1
+return 0
+}
+InstallCross64RootAltNoCheck() {
+set -x
+local Package="${1}" || return 1
+local Format="${2}" || return 1
+shift 2 || return 1
+Cross64EnvSetup || return 1
+InstallEngineNoCheck "${Package}" "${Format}" "$(grep -c ^processor /proc/cpuinfo)" "For Cross-x86_64" "--host=x86_64-pc-linux-gnu --prefix=/opt/NewRoot --with-sysroot=/opt/NewRoot" "${@}" || return 1
+Cross64EnvCleanUp || return 1
+return 0
+}
+InstallCross64RootAltJ1NoCheck() {
+set -x
+local Package="${1}" || return 1
+local Format="${2}" || return 1
+shift 2 || return 1
+Cross64EnvSetup || return 1
+InstallEngineNoCheck "${Package}" "${Format}" '1' "For Cross-x86_64" "--host=x86_64-pc-linux-gnu --prefix=/opt/NewRoot --with-sysroot=/opt/NewRoot" "${@}" || return 1
+Cross64EnvCleanUp || return 1
+return 0
+}
+InstallNative64NoCheck() {
+set -x
+local Package="${1}" || return 1
+local Format="${2}" || return 1
+shift 2 || return 1
+Native64EnvSetup || return 1
+InstallEngineNoCheck "${Package}" "${Format}" "$(grep -c ^processor /proc/cpuinfo)" "For Host-x64" "--prefix=/usr --with-sysroot=/opt/NewRoot" "${@}" || return 1
+Native64EnvCleanUp || return 1
+return 0
+}
+InstallNative64J1NoCheck() {
+set -x
+local Package="${1}" || return 1
+local Format="${2}" || return 1
+shift 2 || return 1
+Native64EnvSetup || return 1
+InstallEngineNoCheck "${Package}" "${Format}" '1' "For Host-x64" "--prefix=/usr --with-sysroot=/opt/NewRoot" "${@}" || return 1
+Native64EnvCleanUp || return 1
+return 0
+}
+InstallNative64RootNoCheck() {
+set -x
+local Package="${1}" || return 1
+local Format="${2}" || return 1
+shift 2 || return 1
+Native64EnvSetup || return 1
+InstallEngineNoCheck "${Package}" "${Format}" "$(grep -c ^processor /proc/cpuinfo)" "For Host-x64" "--prefix= --with-sysroot=/opt/NewRoot" "${@}" || return 1
+Native64EnvCleanUp || return 1
+return 0
+}
+InstallNative64RootJ1NoCheck() {
+set -x
+local Package="${1}" || return 1
+local Format="${2}" || return 1
+shift 2 || return 1
+Native64EnvSetup || return 1
+InstallEngineNoCheck "${Package}" "${Format}" '1' "For Host-x64" "--prefix= --with-sysroot=/opt/NewRoot" "${@}" || return 1
+Native64EnvCleanUp || return 1
+return 0
+}
+InstallNative64CrossNoCheck() {
+set -x
+local Package="${1}" || return 1
+local Format="${2}" || return 1
+shift 2 || return 1
+Native64EnvSetup || return 1
+InstallEngineNoCheck "${Package}" "${Format}" "$(grep -c ^processor /proc/cpuinfo)" "For Cross-x86_64-Native" "--prefix=/opt/Cross64 --with-sysroot=/opt/NewRoot" "${@}" || return 1
+Native64EnvCleanUp || return 1
+return 0
+}
+InstallNative64CrossJ1NoCheck() {
+set -x
+local Package="${1}" || return 1
+local Format="${2}" || return 1
+shift 2 || return 1
+Native64EnvSetup || return 1
+InstallEngineNoCheck "${Package}" "${Format}" '1' "For Cross-x86_64-Native" "--prefix=/opt/Cross64 --with-sysroot=/opt/NewRoot" "${@}" || return 1
+Native64EnvCleanUp || return 1
+return 0
+}
+InstallNative64RootCrossNoCheck() {
+set -x
+local Package="${1}" || return 1
+local Format="${2}" || return 1
+shift 2 || return 1
+Native64EnvSetup || return 1
+InstallEngineNoCheck "${Package}" "${Format}" "$(grep -c ^processor /proc/cpuinfo)" "For Cross-x86_64-Native" "--prefix=/opt/NewRoot --with-sysroot=/opt/NewRoot" "${@}" || return 1
+Native64EnvCleanUp || return 1
+return 0
+}
+InstallNative64RootCrossJ1NoCheck() {
+set -x
+local Package="${1}" || return 1
+local Format="${2}" || return 1
+shift 2 || return 1
+Native64EnvSetup || return 1
+InstallEngineNoCheck "${Package}" "${Format}" '1' "For Cross-x86_64-Native" "--prefix=/opt/NewRoot --with-sysroot=/opt/NewRoot" "${@}" || return 1
+Native64EnvCleanUp || return 1
+return 0
+}
 RemoveEngine() {
 set -x
 local Package="${1}" || return 1
@@ -444,8 +650,9 @@ local TitleText="Removing ${Package} ${TitlePostfix}" || return 1
 local Subfolder="W0RK" || return 1
 local ConfigureCommand="../configure ${@}" || return 1
 local MakeCommand="nop" || return 1
+local CheckCommand="nop" || return 1
 local DeployCommand="make uninstall" || return 1
-InstallBase "${Package}" "${Format}" "${TitleText}" "${Subfolder}" "${ConfigureCommand}" "${MakeCommand}" "${DeployCommand}" 'Extracting' 'Configuring' 'Compiling' 'Erasing' 'Cleaning' || return 1
+InstallBase "${Package}" "${Format}" "${TitleText}" "${Subfolder}" "${ConfigureCommand}" "${MakeCommand}" "${CheckCommand}" "${DeployCommand}" 'Extracting' 'Configuring' 'Compiling' 'Validating' 'Erasing' 'Cleaning' || return 1
 return 0
 }
 Remove() {
@@ -549,8 +756,9 @@ local TitleText="Checking Configure Options Of ${Package}" || return 1
 local Subfolder="" || return 1
 local ConfigureCommand="./configure ${@} --help" || return 1
 local MakeCommand="nop" || return 1
+local CheckCommand="nop" || return 1
 local DeployCommand="nop" || return 1
-InstallBase "${Package}" "${Format}" "${TitleText}" "${Subfolder}" "${ConfigureCommand}" "${MakeCommand}" "${DeployCommand}" 'Extracting' 'Configuring' 'Compiling' 'Deploying' 'Cleaning' || return 1
+InstallBase "${Package}" "${Format}" "${TitleText}" "${Subfolder}" "${ConfigureCommand}" "${MakeCommand}" "${CheckCommand}" "${DeployCommand}" 'Extracting' 'Configuring' 'Compiling' 'Validating' 'Deploying' 'Cleaning' || return 1
 return 0
 }
 CheckMake() {
@@ -562,8 +770,9 @@ local TitleText="Checking Make Targets Of ${Package}" || return 1
 local Subfolder="" || return 1
 local ConfigureCommand="./configure ${@}" || return 1
 local MakeCommand='make -pRrsq > TMP 2>&1 || true' || return 1
+local CheckCommand="nop" || return 1
 local DeployCommand='killall -9 -e simpletext || true; /Applications/SimpleText.app/Contents/RedStar/simpletext TMP; rm -f TMP' || return 1
-InstallBase "${Package}" "${Format}" "${TitleText}" "${Subfolder}" "${ConfigureCommand}" "${MakeCommand}" "${DeployCommand}" 'Extracting' 'Configuring' 'Compiling' 'Deploying' 'Cleaning' || return 1
+InstallBase "${Package}" "${Format}" "${TitleText}" "${Subfolder}" "${ConfigureCommand}" "${MakeCommand}" "${CheckCommand}" "${DeployCommand}" 'Extracting' 'Configuring' 'Compiling' 'Validating' 'Deploying' 'Cleaning' || return 1
 return 0
 }
 KernelInstall() {

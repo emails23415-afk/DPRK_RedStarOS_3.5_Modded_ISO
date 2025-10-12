@@ -67,6 +67,7 @@ Install cpio-2.13 gz
 CustomInstall openssl-1.0.2u gz "For Host" "" \
 "./config --openssldir=/usr/ssl" \
 "make all -j$(grep -c ^processor /proc/cpuinfo)" \
+"make check" \
 "make install"
 Install expat-2.2.10 xz
 Install unbound-1.12.0 gz
@@ -85,7 +86,7 @@ Install texinfo-6.8 xz --enable-dependency-tracking
 rm -f /sbin/install-info
 ln -sf /usr/bin/install-info /sbin/install-info
 Install help2man-1.47.17 xz
-Install Python-3.7.6 xz --enable-optimizations --with-pydebug
+InstallNoCheck Python-3.7.6 xz --enable-optimizations --with-pydebug
 Cross64CleanUp
 InstallCross64 binutils-2.34 xz --mandir=/opt/NewRoot/share/man --infodir=/opt/NewRoot/share/info \
 --enable-ld=yes --enable-gold=no --enable-obsolete \
@@ -139,6 +140,7 @@ cd /workspace/gcc-6.5.0/W0RK; \
 --enable-libgcj --enable-static-libjava=unicows --enable-objc-gc --enable-vtable-verify \
 --enable-lto --enable-tls --enable-nls" \
 "make all-gcc -j$(grep -c ^processor /proc/cpuinfo)" \
+"make check" \
 "make install-gcc; \
 CleanUp gmp-4.3.2; \
 CleanUp mpfr-2.4.2; \
@@ -151,6 +153,7 @@ CustomInstall glibc-2.23 xz "For Cross-x86_64 (Bootstrap Stage 1)" "W0RK" \
 --enable-shared --enable-profile --enable-multi-arch --enable-obsolete-rpc --enable-mathvec --disable-werror \
 libc_cv_forced_unwind=yes libc_cv_c_cleanup=yes" \
 "nop" \
+"nop" \
 "make install-headers install-bootstrap-headers=yes"
 CustomInstall glibc-2.23 xz "For Cross-x86_64 (Bootstrap Stage 1)" "W0RK" \
 "../configure --prefix=/opt/NewRoot/usr --mandir=/opt/NewRoot/share/man --infodir=/opt/NewRoot/share/info \
@@ -159,6 +162,7 @@ CustomInstall glibc-2.23 xz "For Cross-x86_64 (Bootstrap Stage 1)" "W0RK" \
 --enable-shared --enable-profile --enable-multi-arch --enable-obsolete-rpc --enable-mathvec --disable-werror \
 libc_cv_forced_unwind=yes libc_cv_c_cleanup=yes" \
 "make csu/subdir_lib -j$(grep -c ^processor /proc/cpuinfo)" \
+"nop" \
 "install csu/crt*.o /opt/Cross64/x86_64-pc-linux-gnu/lib64"
 touch /opt/NewRoot/usr/include/gnu/stubs.h
 CustomInstall gcc-6.5.0 xz "For Cross-x86_64 (Bootstrap Stage 2)" "W0RK" \
@@ -186,6 +190,7 @@ cd /workspace/gcc-6.5.0/W0RK; \
 --enable-libgcj --enable-static-libjava=unicows --enable-objc-gc --enable-vtable-verify \
 --enable-lto --enable-tls --enable-nls" \
 "make all-target-libgcc -j$(grep -c ^processor /proc/cpuinfo)" \
+"make check" \
 "make install-target-libgcc; \
 CleanUp gmp-4.3.2; \
 CleanUp mpfr-2.4.2; \
@@ -216,6 +221,7 @@ cd /workspace/gcc-6.5.0/W0RK; \
 --enable-libgcj --enable-static-libjava=unicows --disable-objc-gc --enable-vtable-verify \
 --enable-lto --enable-tls --enable-nls" \
 "make all -j$(grep -c ^processor /proc/cpuinfo)" \
+"make check" \
 "make install; \
 CleanUp gmp-4.3.2; \
 CleanUp mpfr-2.4.2; \
@@ -230,6 +236,7 @@ CustomInstall glibc-2.23 xz "For Cross-x86_64 (Bootstrap Stage 4)" "W0RK" \
 --enable-shared --enable-profile --enable-multi-arch --enable-obsolete-rpc --enable-mathvec --disable-werror \
 libc_cv_forced_unwind=yes libc_cv_c_cleanup=yes" \
 "make all -j$(grep -c ^processor /proc/cpuinfo)" \
+"make check" \
 "make install"
 unset CFLAGS
 unset CXXFLAGS
@@ -258,6 +265,7 @@ cd /workspace/gcc-6.5.0/W0RK; \
 --enable-libgcj --enable-static-libjava=unicows --enable-objc-gc --enable-vtable-verify \
 --enable-lto --enable-tls --enable-nls" \
 "make all-target -j$(grep -c ^processor /proc/cpuinfo)" \
+"make check" \
 "make install-target; \
 CleanUp gmp-4.3.2; \
 CleanUp mpfr-2.4.2; \
@@ -272,6 +280,7 @@ CustomInstall glibc-2.23 xz "For Cross-x86_64 (Final Stage)" "W0RK" \
 --enable-shared --enable-profile --enable-multi-arch --enable-obsolete-rpc --enable-mathvec --disable-werror \
 libc_cv_forced_unwind=yes libc_cv_c_cleanup=yes" \
 "make all -j$(grep -c ^processor /proc/cpuinfo)" \
+"make check" \
 "make install"
 rm -f '/opt/NewRoot/lib'
 mv -vf '/opt/NewRoot/lib64' '/opt/NewRoot/lib644'
@@ -285,6 +294,7 @@ CustomInstall glibc-2.23 xz "For Cross-x86_64 (MultiLib Support)" "W0RK" \
 --enable-shared --enable-profile --enable-multi-arch --enable-obsolete-rpc --enable-mathvec --disable-werror \
 libc_cv_forced_unwind=yes libc_cv_c_cleanup=yes" \
 "make all -j$(grep -c ^processor /proc/cpuinfo)" \
+"make check" \
 "make install"
 unset CFLAGS
 unset CXXFLAGS
@@ -316,7 +326,8 @@ Cross64EnvSetup; \
 --enable-libgcj --enable-static-libjava=unicows --enable-objc-gc --enable-vtable-verify \
 --enable-lto --enable-tls --enable-nls" \
 "make all -j$(grep -c ^processor /proc/cpuinfo)" \
-"make check && make install; \
+"make check" \
+"make install; \
 Cross64EnvCleanUp; \
 CleanUp gmp-4.3.2; \
 CleanUp mpfr-2.4.2; \
