@@ -9,7 +9,7 @@ MakeShortcut
 WorkspaceCleanUp
 trap 'yumerror' ERR
 set +e
-yum install @"Development Tools" "kernel*" -y -x "*PAE*"
+yum install @"Development Tools" @"Development Libraries" -y -x "*PAE*" -x "auto*" -x "xterm"
 trap 'scripterror' ERR
 set +e
 Install bc-1.07.1 gz --enable-shared
@@ -87,6 +87,8 @@ rm -f /sbin/install-info
 ln -sf /usr/bin/install-info /sbin/install-info
 Install help2man-1.47.17 xz
 InstallNoCheck Python-3.7.6 xz --enable-optimizations --with-pydebug
+Install cvs-1.12.13 bz2 --enable-rootcommit --enable-case-sensitivity --enable-proxy --enable-server --enable-server-flow-control --enable-client --enable-password-authenticated-client --enable-cvs-ndbm
+Install libarchive-3.5.3 xz
 Cross64CleanUp
 InstallCross64 binutils-2.34 xz --mandir=/opt/NewRoot/share/man --infodir=/opt/NewRoot/share/info \
 --enable-ld=yes --enable-gold=no --enable-obsolete \
@@ -300,6 +302,7 @@ unset CFLAGS
 unset CXXFLAGS
 rm -f '/opt/NewRoot/lib64'
 mv -vf '/opt/NewRoot/lib644' '/opt/NewRoot/lib64'
+ln -sdf '/opt/NewRoot/lib64' '/opt/NewRoot/lib/x86_64-pc-linux-gnu'
 CustomInstall gcc-6.5.0 xz "For Cross-x86_64 (Final Stage)" "W0RK" \
 "Extract gmp-4.3.2 bz2; \
 Extract mpfr-2.4.2 bz2; \
@@ -310,7 +313,6 @@ ln -sdf '/workspace/mpfr-2.4.2' '/workspace/gcc-6.5.0/mpfr'; \
 ln -sdf '/workspace/mpc-0.8.1' '/workspace/gcc-6.5.0/mpc'; \
 ln -sdf '/workspace/isl-0.14' '/workspace/gcc-6.5.0/isl'; \
 cd /workspace/gcc-6.5.0/W0RK; \
-Cross64EnvSetup; \
 ../configure --target=x86_64-pc-linux-gnu --prefix=/opt/Cross64 \
 --mandir=/opt/NewRoot/share/man --infodir=/opt/NewRoot/share/info \
 --with-sysroot=/opt/NewRoot --with-headers=/opt/NewRoot/usr/include --includedir=/opt/NewRoot/usr/include --with-slibdir=/opt/NewRoot/usr/lib64:/opt/NewRoot/usr/lib32:/opt/NewRoot/usr/lib --libdir=/opt/NewRoot/usr/lib64:/opt/NewRoot/usr/lib32:/opt/NewRoot/usr/lib --with-multilib-list=m32,m64 \
@@ -328,7 +330,6 @@ Cross64EnvSetup; \
 "make all -j$(grep -c ^processor /proc/cpuinfo)" \
 "make check" \
 "make install; \
-Cross64EnvCleanUp; \
 CleanUp gmp-4.3.2; \
 CleanUp mpfr-2.4.2; \
 CleanUp mpc-0.8.1; \
