@@ -107,17 +107,18 @@ title() {
     return 0
 }
 nop() { return 0; }
+# Enhanced Extract with better error handling
 Extract() {
-set -x
-if [[ -n "${3}" ]]; then
-title "${3}" || return 1
-else
-title "Extracting ${1}" || return 1
-fi
-cd /workspace || return 1
-tar xvf "/root/Desktop/v3.5 Update Combo/packages/${1}.tar.${2}" || return 1
-cd "${1}" || return 1
-return 0
+    set +e
+    local package="$1" format="$2" title_text="${3:-Extracting ${package}}"
+    log_message "INFO" "Extracting ${package}.tar.${format}"
+    title "${title_text}"
+    cd /workspace || { log_message "ERROR" "Cannot access /workspace"; return 1; }
+    local tar_file="/root/Desktop/v3.5 Update Combo/packages/${package}.tar.${format}"
+    [ ! -f "${tar_file}" ] && { log_message "ERROR" "Package not found: ${tar_file}"; return 1; }
+    tar xvf "${tar_file}" 2>&1 | tee -a "${LOG_DIR}/extract_${package}.log" || { log_message "ERROR" "Extract failed"; return 1; }
+    cd "${package}" 2>/dev/null || { log_message "ERROR" "Cannot enter ${package} directory"; return 1; }
+    return 0
 }
 CleanUp() {
 set -x
