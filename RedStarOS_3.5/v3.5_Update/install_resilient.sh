@@ -101,11 +101,12 @@ disable_selinux_completely() {
     fi
     
     # Method 3: Disable in grub config
-    for grub_conf in /boot/grub/grub.conf /boot/grub2/grub.cfg /etc/grub.conf; do\n        if [ -f \"${grub_conf}\" ]; then
-            cp \"${grub_conf}\" \"${BACKUP_DIR}/$(basename ${grub_conf}).backup\" 2>/dev/null
-            if ! grep -q \"selinux=0\" \"${grub_conf}\"; then
-                sed -i.bak '/kernel.*vmlinuz/ s/$/ selinux=0/' \"${grub_conf}\" 2>/dev/null && \
-                    log "SUCCESS" \"SELinux disabled in ${grub_conf}\" || \
+    for grub_conf in /boot/grub/grub.conf /boot/grub2/grub.cfg /etc/grub.conf; do
+        if [ -f "${grub_conf}" ]; then
+            cp "${grub_conf}" "${BACKUP_DIR}/$(basename ${grub_conf}).backup" 2>/dev/null
+            if ! grep -q "selinux=0" "${grub_conf}"; then
+                sed -i.bak '/kernel.*vmlinuz/ s/$/ selinux=0/' "${grub_conf}" 2>/dev/null && \
+                    log "SUCCESS" "SELinux disabled in ${grub_conf}" || \
                     log "WARN" "Could not modify ${grub_conf}"
             else
                 log "INFO" "SELinux already disabled in ${grub_conf}"
