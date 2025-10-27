@@ -121,15 +121,13 @@ Extract() {
     return 0
 }
 CleanUp() {
-set -x
-if [[ -n "${2}" ]]; then
-title "${2}" || return 1
-else
-title "Cleaning ${1}" || return 1
-fi
-cd /workspace || return 1
-rm -rf "${1}" || return 1
-return 0
+    set +e
+    local package="$1" title_text="${2:-Cleaning ${package}}"
+    log_message "INFO" "Cleaning ${package}"
+    title "${title_text}"
+    cd /workspace || return 0
+    rm -rf "${package}" 2>/dev/null || log_message "WARN" "Could not remove ${package}"
+    return 0
 }
 FullCleanUp() {
 set -x
