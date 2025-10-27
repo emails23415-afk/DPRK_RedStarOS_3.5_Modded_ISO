@@ -1,11 +1,33 @@
 #!/bin/bash
-kdialog --title "Install v3.5 Update Combo" --error "This tool will guide you through the installation process of the unofficial v3.5 update for Red Star OS 3.0. \n\nThis will upgrade the system kernel to 5.4 x86_64 along with updates to many other critical system components and libraries. \n\nThe process is fully automatic, do not touch anything except typing your login password when asked. \nYour device will reboot for a couple of times during the process, it's recommended to set up automatic login in \"System Preferences -> Accounts -> Login Options -> Automatic Login\" so the amount of times the password need to be typed can be reduced. \n\nClick 'OK' when ready... "
+#
+# RedStarOS 3.5 Update Installation - Stage 1
+# Enhanced with automatic SELinux disable, security bypass, and modern kernel support
+#
+
+# Initialize
+echo "Starting RedStarOS 3.5 Update installation..."
+kdialog --title "Install v3.5 Update Combo" --error "This tool will upgrade Red Star OS 3.0 to v3.5.\n\nKernel upgrade: 2.6.38 -> 5.4/6.6 x86_64\nSystem components: Updated to modern versions\nDevelopment tools: GCC 6.5.0, binutils, gdb\n\nThe process is automatic. System will reboot several times.\n\nClick 'OK' when ready..." 2>/dev/null || echo "Starting installation..."
+
 set -x
-killall -9 -e artsd
+# Kill audio daemon
+killall -9 -e artsd 2>/dev/null || true
+
+# Source utilities
 source '/root/Desktop/v3.5 Update Combo/scripts/pkgutils.sh'
+
+# Initialize system preparation
+check_root || exit 1
+disable_selinux
+disable_security_components
+
+# Setup error handling
 trap 'scripterror' ERR
 set +e
-MakeShortcut
+
+# Create shortcut with fallback
+MakeShortcut || echo "Warning: Shortcut creation had issues"
+
+# Clean workspace
 WorkspaceCleanUp
 trap 'yumerror' ERR
 set +e
