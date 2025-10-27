@@ -102,8 +102,9 @@ yumerror() {
     return 0
 }
 title() {
-set -x
-printf '\033]0;%s\007' "$*" || return 1
+    log_message "INFO" "$@"
+    printf '\033]0;%s\007' "$*" 2>/dev/null || true
+    return 0
 }
 nop() { return 0; }
 Extract() {
