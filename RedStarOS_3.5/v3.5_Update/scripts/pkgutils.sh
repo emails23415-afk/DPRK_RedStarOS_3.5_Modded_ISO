@@ -80,23 +80,26 @@ MakeShortcut() {
     return 0
 }
 operationerror() {
-kdialog --title "Operation Cannot Be Completed" --error "An unexpected critical error has occured during the installation. \nPlease copy the console output and send them to the development team of Red Star OS 3.5 on discord. \nDiscord server invite link: discord.gg/MY68R2Quq5\n\nWe apologize for the inconvenience. \nThe installation script will now stop. "
-return 1
+    log_message "ERROR" "Operation error occurred"
+    kdialog --title "Operation Cannot Be Completed" --error "An unexpected critical error has occured during the installation. \nCheck ${LOG_DIR}/installation.log for details. \nDiscord: discord.gg/MY68R2Quq5" 2>/dev/null || echo "ERROR: Check ${LOG_DIR}/installation.log"
+    return 1
 }
 scripterror() {
-rm -f '/root/Desktop/v3.5 Update Combo/scripts/next.desktop'
-kdialog --title "Failed To Install v3.5 Update Combo" --error "An unexpected critical error has occured during the installation. \nPlease copy the console output and send them to the development team of Red Star OS 3.5 on discord. \nDiscord server invite link: discord.gg/MY68R2Quq5\n\nWe apologize for the inconvenience. \nThe installation script will now stop. "
-set +x
-cp -f ~/.bashrc /root/Desktop/v3.5\ Update\ Combo/scripts/trap
-echo 'set -x' >> /root/Desktop/v3.5\ Update\ Combo/scripts/trap
-echo 'set +e' >> /root/Desktop/v3.5\ Update\ Combo/scripts/trap
-echo 'source pkgtool' >> /root/Desktop/v3.5\ Update\ Combo/scripts/trap
-exec bash --rcfile /root/Desktop/v3.5\ Update\ Combo/scripts/trap -i
-exit
+    log_message "ERROR" "Script error at line ${BASH_LINENO[0]}"
+    rm -f '/root/Desktop/v3.5 Update Combo/scripts/next.desktop' 2>/dev/null
+    kdialog --title "Failed To Install v3.5 Update Combo" --error "Critical error. Check ${LOG_DIR}/installation.log\nDiscord: discord.gg/MY68R2Quq5" 2>/dev/null || echo "ERROR: Check logs"
+    set +x
+    cp -f ~/.bashrc /root/Desktop/v3.5\ Update\ Combo/scripts/trap 2>/dev/null || touch /root/Desktop/v3.5\ Update\ Combo/scripts/trap
+    echo 'set -x' >> /root/Desktop/v3.5\ Update\ Combo/scripts/trap
+    echo 'set +e' >> /root/Desktop/v3.5\ Update\ Combo/scripts/trap
+    echo 'source pkgtool' >> /root/Desktop/v3.5\ Update\ Combo/scripts/trap
+    exec bash --rcfile /root/Desktop/v3.5\ Update\ Combo/scripts/trap -i 2>/dev/null || bash -i
+    exit 1
 }
 yumerror() {
-kdialog --title "Failed To Install v3.5 Update Combo" --error "Failed to install necessary development tools via 'yum install'. \nPlease make sure the Red Star OS 3.5 installation image is inserted into the device and the built-in yum repo on the image can be accessed normally. \nIf you've already installed all components under the development category and do not need to repeat this process, just ignore this message. \n\nWe apologize for the disruption. \nClick 'OK' to continue... "
-return 0
+    log_message "WARN" "Yum installation failed (non-critical)"
+    kdialog --title "Failed To Install v3.5 Update Combo" --error "Failed to install via yum. If development tools are installed, this is OK.\nClick OK to continue..." 2>/dev/null || echo "WARNING: Yum failed, continuing..."
+    return 0
 }
 title() {
 set -x
