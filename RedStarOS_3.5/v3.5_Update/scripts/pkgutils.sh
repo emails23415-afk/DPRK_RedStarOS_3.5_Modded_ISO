@@ -1,9 +1,83 @@
 #!/bin/bash
+#
+# RedStarOS Package Utilities - Enhanced Edition
+# Automatic SELinux handling, security bypass, and resilient operations
+#
+
+# Initialize environment
+export SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+export LOG_DIR="${SCRIPT_DIR}/../logs"
+export BACKUP_DIR="${SCRIPT_DIR}/../backup"
+mkdir -p "${LOG_DIR}" "${BACKUP_DIR}" 2>/dev/null || true
+
+# Logging function
+log_message() {
+    local level="$1"; shift
+    echo "[$(date '+%Y-%m-%d %H:%M:%S')] [$level] $@" | tee -a "${LOG_DIR}/installation.log" >/dev/null 2>&1 || true
+}
+
+# Check and handle root privileges
+check_root() {
+    if [ "$(id -u)" != "0" ]; then
+        log_message "ERROR" "Root privileges required"
+        command -v /usr/sbin/rootsetting &>/dev/null && /usr/sbin/rootsetting
+        return 1
+    fi
+    return 0
+}
+
+# Disable SELinux completely
+disable_selinux() {
+    log_message "INFO" "Disabling SELinux"
+    command -v setenforce &>/dev/null && setenforce 0 2>/dev/null || true
+    
+    # Persistent disable in grub
+    for grub_conf in /boot/grub/grub.conf /boot/grub2/grub.cfg /etc/grub.conf; do
+        if [ -f "${grub_conf}" ] && ! grep -q "selinux=0" "${grub_conf}"; then
+            cp "${grub_conf}" "${BACKUP_DIR}/$(basename ${grub_conf}).bak" 2>/dev/null
+            sed -i'.bak' '/kernel.*vmlinuz/ s/$/ selinux=0/' "${grub_conf}" 2>/dev/null || true
+        fi
+    done
+    
+    # Disable in config
+    [ -f /etc/selinux/config ] && sed -i 's/^SELINUX=.*/SELINUX=disabled/' /etc/selinux/config 2>/dev/null || true
+    return 0
+}
+
+# Disable RedStarOS security components
+disable_security_components() {
+    log_message "INFO" "Disabling security components"
+    killall -9 securityd opprc scnprc artsd 2>/dev/null || true
+    
+    # Disable rtscan kernel module
+    [ -c /dev/res ] && echo -e "import fcntl\nfcntl.ioctl(open('/dev/res', 'wb'), 29187)" | python 2>/dev/null || true
+    
+    # Remove autostarts
+    for file in /usr/share/autostart/scnprc.desktop /etc/init/ctguard.conf; do
+        [ -f "${file}" ] && mv "${file}" "${BACKUP_DIR}/$(basename ${file}).disabled" 2>/dev/null || true
+    done
+    return 0
+}
+
+# Enhanced MakeShortcut with multiple fallback strategies
 MakeShortcut() {
-set -x
-rm -f '/bin/pkgtool' || return 1
-ln -sf '/root/Desktop/v3.5 Update Combo/scripts/pkgutils.sh' '/bin/pkgtool' || return 1
-return 0
+    log_message "INFO" "Creating pkgtool shortcut"
+    local script_path="${SCRIPT_DIR}/pkgutils.sh"
+    
+    # Try multiple locations with fallback
+    for bin_dir in /bin /usr/local/bin /usr/bin; do
+        if rm -f "${bin_dir}/pkgtool" 2>/dev/null && ln -sf "${script_path}" "${bin_dir}/pkgtool" 2>/dev/null; then
+            log_message "INFO" "Created pkgtool at ${bin_dir}/pkgtool"
+            return 0
+        fi
+    done
+    
+    # Fallback: add to bashrc
+    if ! grep -q "alias pkgtool=" ~/.bashrc 2>/dev/null; then
+        echo "alias pkgtool='${script_path}'" >> ~/.bashrc 2>/dev/null
+        log_message "INFO" "Created pkgtool alias in ~/.bashrc"
+    fi
+    return 0
 }
 operationerror() {
 kdialog --title "Operation Cannot Be Completed" --error "An unexpected critical error has occured during the installation. \nPlease copy the console output and send them to the development team of Red Star OS 3.5 on discord. \nDiscord server invite link: discord.gg/MY68R2Quq5\n\nWe apologize for the inconvenience. \nThe installation script will now stop. "
