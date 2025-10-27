@@ -2,6 +2,7 @@
 #
 # RedStarOS Package Utilities - Enhanced Edition
 # Automatic SELinux handling, security bypass, and resilient operations
+# Credits: Original v3.5 Update Combo team, redstar-tools by takeshixx, CCC research
 #
 
 # Initialize environment
@@ -20,42 +21,146 @@ log_message() {
 check_root() {
     if [ "$(id -u)" != "0" ]; then
         log_message "ERROR" "Root privileges required"
-        command -v /usr/sbin/rootsetting &>/dev/null && /usr/sbin/rootsetting
+        echo "This installer must be run as root."
+        echo "Please enable root access using one of these methods:"
+        echo "  1. Run: /usr/sbin/rootsetting"
+        echo "  2. Use: su - root"
+        echo "  3. Run: sudo $0"
+        echo ""
+        # Try to automatically enable root
+        command -v /usr/sbin/rootsetting &>/dev/null && /usr/sbin/rootsetting 2>/dev/null || true
         return 1
     fi
+    log_message "INFO" "Running as root"
     return 0
 }
 
 # Disable SELinux completely
 disable_selinux() {
     log_message "INFO" "Disabling SELinux"
+    
+    # Immediate disable
     command -v setenforce &>/dev/null && setenforce 0 2>/dev/null || true
     
-    # Persistent disable in grub
-    for grub_conf in /boot/grub/grub.conf /boot/grub2/grub.cfg /etc/grub.conf; do
+    # Persistent disable in grub (multiple locations)
+    for grub_conf in /boot/grub/grub.conf /boot/grub2/grub.cfg /etc/grub.conf /boot/efi/EFI/redhat/grub.conf; do
         if [ -f "${grub_conf}" ] && ! grep -q "selinux=0" "${grub_conf}"; then
-            cp "${grub_conf}" "${BACKUP_DIR}/$(basename ${grub_conf}).bak" 2>/dev/null
+            cp "${grub_conf}" "${BACKUP_DIR}/$(basename ${grub_conf}).bak" 2>/dev/null || true
             sed -i'.bak' '/kernel.*vmlinuz/ s/$/ selinux=0/' "${grub_conf}" 2>/dev/null || true
+            log_message "INFO" "SELinux disabled in ${grub_conf}"
         fi
     done
     
     # Disable in config
-    [ -f /etc/selinux/config ] && sed -i 's/^SELINUX=.*/SELINUX=disabled/' /etc/selinux/config 2>/dev/null || true
+    if [ -f /etc/selinux/config ]; then
+        cp /etc/selinux/config "${BACKUP_DIR}/selinux_config.bak" 2>/dev/null || true
+        sed -i 's/^SELINUX=.*/SELINUX=disabled/' /etc/selinux/config 2>/dev/null || true
+    fi
+    
+    # Create disabled marker
+    touch /etc/selinux/.disabled 2>/dev/null || true
+    
+    log_message "SUCCESS" "SELinux disabled"
     return 0
 }
 
 # Disable RedStarOS security components
 disable_security_components() {
     log_message "INFO" "Disabling security components"
+    
+    # Kill security daemons
     killall -9 securityd opprc scnprc artsd 2>/dev/null || true
     
-    # Disable rtscan kernel module
-    [ -c /dev/res ] && echo -e "import fcntl\nfcntl.ioctl(open('/dev/res', 'wb'), 29187)" | python 2>/dev/null || true
+    # Disable rtscan kernel module (watermarking prevention)
+    if [ -c /dev/res ] && command -v python &>/dev/null; then
+        echo -e "import fcntl\nfcntl.ioctl(open('/dev/res', 'wb'), 29187)" | python 2>/dev/null || true
+        log_message "INFO" "Disabled rtscan kernel module"
+    fi
     
     # Remove autostarts
     for file in /usr/share/autostart/scnprc.desktop /etc/init/ctguard.conf; do
         [ -f "${file}" ] && mv "${file}" "${BACKUP_DIR}/$(basename ${file}).disabled" 2>/dev/null || true
     done
+    
+    # Replace libos.so with defused version (from redstar-tools)
+    if [ -f /usr/lib/libos.so.0.0.0 ]; then
+        cp /usr/lib/libos.so.0.0.0 "${BACKUP_DIR}/libos.so.0.0.0.backup" 2>/dev/null || true
+        # Base64 encoded defused libos.so
+        local LIBOS="f0VMRgEBAQAAAAAAAAAAAAMAAwABAAAAIAMAADQAAABUBgAAAAAAADQAIAAFACgAGgAXAAEAAAAA
+AAAAAAAAAAAAAABYBAAAWAQAAAUAAAAAEAAAAQAAAFgEAABYFAAAWBQAAPgAAAAAAQAABgAAAAAQ
+AAACAAAAcAQAAHAUAABwFAAAwAAAAMAAAAAGAAAABAAAAAQAAADUAAAA1AAAANQAAAAkAAAAJAAA
+AAQAAAAEAAAAUeV0ZAAAAAAAAAAAAAAAAAAAAAAAAAAABgAAAAQAAAAEAAAAFAAAAAMAAABHTlUA
+G13eo0DDAAwZfo2/FLPAMjzpIAgDAAAABAAAAAIAAAAGAAAAiAAhAQDEQAkEAAAABgAAAAkAAAC6
+45J8Q0XV7BCOFvTYcVgcuY3xDuvT7w4AAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAIAAAACsA
+AAAAAAAAAAAAACAAAAAcAAAAAAAAAAAAAAAiAAAAaAAAAFgVAAAAAAAAEADx/1UAAABQFQAAAAAA
+ABAAEf8/AAAA8AMAAAoAAAASAAsAXAAAAFAVAAAAAAAAEADx/xAAAAC0AgAAAAAAABIACQAWAAAA
+OAQAAAAAAAASAAwAAF9fZ21vbl9zdGFydF9fAF9pbml0AF9maW5pAF9fY3hhX2ZpbmFsaXplAF9K
+dl9SZWdpc3RlckNsYXNzZXMAdmFsaWRhdGVfb3MAbGliYy5zby42AF9lZGF0YQBfX2Jzc19zdGFy
+dABfZW5kAEdMSUJDXzIuMS4zAAAAAAAAAAACAAEAAQABAAEAAQABAAAAAQABAEsAAAAQAAAAAAAA
+AHMfaQkAAAIAbQAAAAAAAABsFAAACAAAADAVAAAGAQAANBUAAAYCAAA4FQAABgMAAEgVAAAHAQAA
+TBUAAAcDAABVieVTg+wE6AAAAABbgcN8EgAAi5P0////hdJ0BegeAAAA6NUAAADoIAEAAFhbycP/
+swQAAAD/owgAAAAAAAAA/6MMAAAAaAAAAADp4P////+jEAAAAGgIAAAA6dD///8AAAAAAAAAAAAA
+AABVieVWU+i/AAAAgcMSEgAAjWQk8IC7FAAAAAB1XIuD/P///4XAdA6NgzD///+JBCTor////42z
+KP///42TJP///ynWi4MYAAAAwf4Cg+4BOfBzH5CNdCYAg8ABiYMYAAAA/5SDJP///4uDGAAAADnw
+debGgxQAAAABjWQkEFteXcPrDZCQkJCQkJCQkJCQkJBVieVT6DAAAACBw4MRAACNZCTsi5Ms////
+hdJ0FYuD+P///4XAdAuNkyz///+JFCT/0I1kJBRbXcOLHCTDkJCQVYnluAEAAABdw5CQkJCQkFWJ
+5VZT6N////+BwzIRAACLgxz///+D+P90GY2zHP///420JgAAAACNdvz/0IsGg/j/dfRbXl3DVYnl
+U4PsBOgAAAAAW4HD+BAAAOjQ/v//WVvJwwAAAAD/////AAAAAP////8AAAAAAAAAAGwUAAABAAAA
+SwAAAAwAAAC0AgAADQAAADgEAAD1/v9v+AAAAAUAAADUAQAABgAAADQBAAAKAAAAeQAAAAsAAAAQ
+AAAAAwAAADwVAAACAAAAEAAAABQAAAARAAAAFwAAAKQCAAARAAAAhAIAABIAAAAgAAAAEwAAAAgA
+AAD+//9vZAIAAP///28BAAAA8P//b04CAAD6//9vAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABwFAAAAAAAAAAAAAD6AgAACgMAAEdDQzogKEdO
+VSkgNC40LjcgMjAxMjAzMTMgKFJlZCBIYXQgNC40LjctMTYpAAAuc3ltdGFiAC5zdHJ0YWIALnNo
+c3RydGFiAC5ub3RlLmdudS5idWlsZC1pZAAuZ251Lmhhc2gALmR5bnN5bQAuZHluc3RyAC5nbnUu
+dmVyc2lvbgAuZ251LnZlcnNpb25fcgAucmVsLmR5bgAucmVsLnBsdAAuaW5pdAAudGV4dAAuZmlu
+aQAuZWhfZnJhbWUALmN0b3JzAC5kdG9ycwAuamNyAC5kYXRhLnJlbC5ybwAuZHluYW1pYwAuZ290
+AC5nb3QucGx0AC5ic3MALmNvbW1lbnQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAABsAAAAHAAAAAgAAANQAAADUAAAAJAAAAAAAAAAAAAAABAAAAAAAAAAuAAAA9v//bwIA
+AAD4AAAA+AAAADwAAAADAAAAAAAAAAQAAAAEAAAAOAAAAAsAAAACAAAANAEAADQBAACgAAAABAAA
+AAEAAAAEAAAAEAAAAEAAAAADAAAAAgAAANQBAADUAQAAeQAAAAAAAAAAAAAAAQAAAAAAAABIAAAA
+////bwIAAABOAgAATgIAABQAAAADAAAAAAAAAAIAAAACAAAAVQAAAP7//28CAAAAZAIAAGQCAAAg
+AAAABAAAAAEAAAAEAAAAAAAAAGQAAAAJAAAAAgAAAIQCAACEAgAAIAAAAAMAAAAAAAAABAAAAAgA
+AABtAAAACQAAAAIAAACkAgAApAIAABAAAAADAAAACgAAAAQAAAAIAAAAdgAAAAEAAAAGAAAAtAIA
+ALQCAAAwAAAAAAAAAAAAAAAEAAAAAAAAAHEAAAABAAAABgAAAOQCAADkAgAAMAAAAAAAAAAAAAAA
+BAAAAAQAAAB8AAAAAQAAAAYAAAAgAwAAIAMAABgBAAAAAAAAAAAAABAAAAAAAAAAggAAAAEAAAAG
+AAAAOAQAADgEAAAcAAAAAAAAAAAAAAAEAAAAAAAAAIgAAAABAAAAAgAAAFQEAABUBAAABAAAAAAA
+AAAAAAAABAAAAAAAAACSAAAAAQAAAAMAAABYFAAAWAQAAAgAAAAAAAAAAAAAAAQAAAAAAAAAmQAA
+AAEAAAADAAAAYBQAAGAEAAAIAAAAAAAAAAAAAAAEAAAAAAAAAKAAAAABAAAAAwAAAGgUAABoBAAA
+BAAAAAAAAAAAAAAABAAAAAAAAAClAAAAAQAAAAMAAABsFAAAbAQAAAQAAAAAAAAAAAAAAAQAAAAA
+AAAAsgAAAAYAAAADAAAAcBQAAHAEAADAAAAABAAAAAAAAAAEAAAACAAAALsAAAABAAAAAwAAADAV
+AAAwBQAADAAAAAAAAAAAAAAABAAAAAQAAADAAAAAAQAAAAMAAAA8FQAAPAUAABQAAAAAAAAAAAAA
+AAQAAAAEAAAAyQAAAAgAAAADAAAAUBUAAFAFAAAIAAAAAAAAAAAAAAAEAAAAAAAAAM4AAAABAAAA
+MAAAAAAAAABQBQAALQAAAAAAAAAAAAAAAQAAAAEAAAARAAAAAwAAAAAAAAAAAAAAfQUAANcAAAAA
+AAAAAAAAAAEAAAAAAAAAAQAAAAIAAAAAAAAAAAAAAGQKAAAwAwAAGQAAACoAAAAEAAAAEAAAAAkA
+AAADAAAAAAAAAAAAAACUDQAAeAEAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+ANQAAAAAAAAAAwABAAAAAAD4AAAAAAAAAAMAAgAAAAAANAEAAAAAAAADAAMAAAAAANQBAAAAAAAA
+AwAEAAAAAABOAgAAAAAAAAMABQAAAAAAZAIAAAAAAAADAAYAAAAAAIQCAAAAAAAAAwAHAAAAAACk
+AgAAAAAAAAMACAAAAAAAtAIAAAAAAAADAAkAAAAAAOQCAAAAAAAAAwAKAAAAAAAgAwAAAAAAAAMA
+CwAAAAAAOAQAAAAAAAADAAwAAAAAAFQEAAAAAAAAAwANAAAAAABYFAAAAAAAAAMADgAAAAAAYBQA
+AAAAAAMADwAAAAAAaBQAAAAAAAADABAAAAAAAGwUAAAAAAAAAwAQAAAAAABwFAAAAAAAAAMAEgAA
+AAAAADAVAAAAAAAAAwATAAAAAAA8FQAAAAAAAAMAFAAAAAAAUBUAAAAAAAADABUAAAAAAAAAAAAA
+AAAAAwAWAAEAAAAAAAAAAAAAAAQA8f8MAAAAWBQAAAAAAAABAA4AGgAAAGAUAAAAAAAAAQAPACgA
+AABoFAAAAAAAAAEAEAA1AAAAIAMAAAAAAAACAAsASwAAAFAVAAABAAAAAQAVAFoAAABUFQAABAAA
+AAEAFQBoAAAAsAMAAAAAAAACAAsAAQAAAAAAAAAAAAAABADx/3QAAABcFAAAAAAAAAEADgCBAAAA
+VAQAAAAAAABBIAAN AJsAAAAAAAAAAAAAAAIACwCxAAAAAAAAAAAAAAAEAPH/uQAAADwVAAAAAAAAAQDx/88AAABsFAAAAAAAAAEAEQDcAAAAZBQAAAAAAAABAA8A6QAAAOkD
+AAAAAAAAAgALAAABAABwFAAAAAAAAAEA8f8JAQAA8AMAAAoAAAASAAsAFQEAAAAAAAAAAAAAIAAA
+ACQBAAAAAAAAAAAAACAAAAA4AQAAOAQAAAAAAAASAAwAPgEAAFAVAAAAAAAAEADx/0oBAABYFQAA
+AAAAABAA8f9PAQAAUBUAAAAAAAAQAPH/VgEAAAAAAAAAAAAAIgAAAHIBAAC0AgAAAAAAABIACQAA
+Y3J0c3R1ZmYuYwBfX0NUT1JfTElTVF9fAF9fRFRPUl9MSVNUX18AX19KQ1JfTElTVF9fAF9fZG9f
+Z2xvYmFsX2R0b3JzX2F1eABjb21wbGV0ZWQuNTk3NABkdG9yX2lkeC41OTc2AGZyYW1lX2R1bW15
+AF9fQ1RPUl9FTkRfXwBfX0ZSQU1FX0VORF9fAF9fSkNSX0VORF9fAF9fZG9fZ2xvYmFsX2N0b3Jz
+X2F1eABsaWJvcy5jAF9HTE9CQUxfT0ZGU0VUX1RBQkxFXwBfX2Rzb19oYW5kbGUAX19EVE9SX0VO
+RF9fAF9faTY4Ni5nZXRfcGNfdGh1bmsuYngAX0RZTkFNSUMAdmFsaWRhdGVfb3MAX19nbW9uX3N0
+YXJ0X18AX0p2X1JlZ2lzdGVyQ2xhc3NlcwBfZmluaQBfX2Jzc19zdGFydABfZW5kAF9lZGF0YQBf
+X2N4YV9maW5hbGl6ZUBAR0xJQkNfMi4xLjMAX2luaXQA"
+        echo "${LIBOS}" | base64 -d > /usr/lib/libos.so.0.0.0 2>/dev/null && {
+            rm -f /usr/lib/libos.so.0 2>/dev/null || true
+            ln -sf /usr/lib/libos.so.0.0.0 /usr/lib/libos.so.0 2>/dev/null || true
+            log_message "INFO" "Replaced libos.so with defused version"
+        } || log_message "WARN" "Could not replace libos.so"
+    fi
+    
+    log_message "SUCCESS" "Security components disabled"
     return 0
 }
 
@@ -67,27 +172,29 @@ MakeShortcut() {
     # Try multiple locations with fallback
     for bin_dir in /bin /usr/local/bin /usr/bin; do
         if rm -f "${bin_dir}/pkgtool" 2>/dev/null && ln -sf "${script_path}" "${bin_dir}/pkgtool" 2>/dev/null; then
-            log_message "INFO" "Created pkgtool at ${bin_dir}/pkgtool"
+            log_message "SUCCESS" "Created pkgtool at ${bin_dir}/pkgtool"
             return 0
         fi
     done
     
     # Fallback: add to bashrc
     if ! grep -q "alias pkgtool=" ~/.bashrc 2>/dev/null; then
-        echo "alias pkgtool='${script_path}'" >> ~/.bashrc 2>/dev/null
-        log_message "INFO" "Created pkgtool alias in ~/.bashrc"
+        echo "alias pkgtool='${script_path}'" >> ~/.bashrc 2>/dev/null && \
+            log_message "SUCCESS" "Created pkgtool alias in ~/.bashrc"
     fi
     return 0
 }
+
 operationerror() {
     log_message "ERROR" "Operation error occurred"
-    kdialog --title "Operation Cannot Be Completed" --error "An unexpected critical error has occured during the installation. \nCheck ${LOG_DIR}/installation.log for details. \nDiscord: discord.gg/MY68R2Quq5" 2>/dev/null || echo "ERROR: Check ${LOG_DIR}/installation.log"
+    kdialog --title "Operation Cannot Be Completed" --error "An unexpected error occurred. Check ${LOG_DIR}/installation.log for details." 2>/dev/null || echo "ERROR: Check ${LOG_DIR}/installation.log"
     return 1
 }
+
 scripterror() {
     log_message "ERROR" "Script error at line ${BASH_LINENO[0]}"
     rm -f '/root/Desktop/v3.5 Update Combo/scripts/next.desktop' 2>/dev/null
-    kdialog --title "Failed To Install v3.5 Update Combo" --error "Critical error. Check ${LOG_DIR}/installation.log\nDiscord: discord.gg/MY68R2Quq5" 2>/dev/null || echo "ERROR: Check logs"
+    kdialog --title "Failed To Install v3.5 Update Combo" --error "Critical error. Check ${LOG_DIR}/installation.log" 2>/dev/null || echo "ERROR: Check logs"
     set +x
     cp -f ~/.bashrc /root/Desktop/v3.5\ Update\ Combo/scripts/trap 2>/dev/null || touch /root/Desktop/v3.5\ Update\ Combo/scripts/trap
     echo 'set -x' >> /root/Desktop/v3.5\ Update\ Combo/scripts/trap
@@ -96,17 +203,21 @@ scripterror() {
     exec bash --rcfile /root/Desktop/v3.5\ Update\ Combo/scripts/trap -i 2>/dev/null || bash -i
     exit 1
 }
+
 yumerror() {
     log_message "WARN" "Yum installation failed (non-critical)"
     kdialog --title "Failed To Install v3.5 Update Combo" --error "Failed to install via yum. If development tools are installed, this is OK.\nClick OK to continue..." 2>/dev/null || echo "WARNING: Yum failed, continuing..."
     return 0
 }
+
 title() {
     log_message "INFO" "$@"
     printf '\033]0;%s\007' "$*" 2>/dev/null || true
     return 0
 }
+
 nop() { return 0; }
+
 # Enhanced Extract with better error handling
 Extract() {
     set +e
@@ -120,6 +231,7 @@ Extract() {
     cd "${package}" 2>/dev/null || { log_message "ERROR" "Cannot enter ${package} directory"; return 1; }
     return 0
 }
+
 CleanUp() {
     set +e
     local package="$1" title_text="${2:-Cleaning ${package}}"
@@ -129,6 +241,7 @@ CleanUp() {
     rm -rf "${package}" 2>/dev/null || log_message "WARN" "Could not remove ${package}"
     return 0
 }
+
 FullCleanUp() {
 set -x
 title "Cleaning All Workspaces" || return 1
@@ -143,6 +256,7 @@ ln -sd /opt/NewRoot /workspace/NewRoot || return 1
 cd /workspace || return 1
 return 0
 }
+
 WorkspaceCleanUp() {
 set -x
 title "Cleaning Workspace" || return 1
@@ -155,6 +269,7 @@ ln -sd /opt/NewRoot /workspace/NewRoot || return 1
 cd /workspace || return 1
 return 0
 }
+
 Cross64CleanUp() {
 set -x
 title "Cleaning Cross64 Workspace" || return 1
@@ -169,6 +284,7 @@ ln -sd /opt/NewRoot /workspace/NewRoot || return 1
 cd /opt/Cross64 || return 1
 return 0
 }
+
 InstallBase() {
 set -x
 local Package="${1}" || return 1
@@ -201,6 +317,7 @@ eval ${DeployCommand}  || return 1
 CleanUp "${Package}" "${TitleText} [${TitlePostfixF}]" || return 1
 return 0
 }
+
 InstallEngine() {
 set -x
 local Package="${1}" || return 1
@@ -217,6 +334,7 @@ local DeployCommand="make install" || return 1
 InstallBase "${Package}" "${Format}" "${TitleText}" "${Subfolder}" "${ConfigureCommand}" "${MakeCommand}" "${CheckCommand}" "${DeployCommand}" 'Extracting' 'Configuring' 'Compiling' 'Validating' 'Deploying' 'Cleaning' || return 1
 return 0
 }
+
 InstallEngineNoCheck() {
 set -x
 local Package="${1}" || return 1
@@ -233,6 +351,7 @@ local DeployCommand="make install" || return 1
 InstallBase "${Package}" "${Format}" "${TitleText}" "${Subfolder}" "${ConfigureCommand}" "${MakeCommand}" "${CheckCommand}" "${DeployCommand}" 'Extracting' 'Configuring' 'Compiling' 'Validating' 'Deploying' 'Cleaning' || return 1
 return 0
 }
+
 CustomInstall() {
 set -x
 local Package="${1}" || return 1
@@ -248,6 +367,7 @@ shift 7 || return 1
 InstallBase "${Package}" "${Format}" "${TitleText}" "${Subfolder}" "${ConfigureCommand}" "${MakeCommand}" "${CheckCommand}" "${DeployCommand}" 'Extracting' 'Configuring' 'Compiling' 'Validating' 'Deploying' 'Cleaning' || return 1
 return 0
 }
+
 Install() {
 set -x
 local Package="${1}" || return 1
@@ -256,6 +376,7 @@ shift 2 || return 1
 InstallEngine "${Package}" "${Format}" "$(grep -c ^processor /proc/cpuinfo)" "For Host" "--prefix=/usr" "${@}" || return 1
 return 0
 }
+
 InstallJ1() {
 set -x
 local Package="${1}" || return 1
@@ -264,6 +385,7 @@ shift 2 || return 1
 InstallEngine "${Package}" "${Format}" '1' "For Host" "--prefix=/usr" "${@}" || return 1
 return 0
 }
+
 InstallRoot() {
 set -x
 local Package="${1}" || return 1
@@ -272,6 +394,7 @@ shift 2 || return 1
 InstallEngine "${Package}" "${Format}" "$(grep -c ^processor /proc/cpuinfo)" "For Host" "--prefix=" "${@}" || return 1
 return 0
 }
+
 InstallRootJ1() {
 set -x
 local Package="${1}" || return 1
@@ -280,6 +403,7 @@ shift 2 || return 1
 InstallEngine "${Package}" "${Format}" '1' "For Host" "--prefix=" "${@}" || return 1
 return 0
 }
+
 Cross64EnvSetup() {
 set -x
 export CROSS_PREFIX=/opt/Cross64 || return 1
@@ -288,6 +412,7 @@ export SYSROOT=/opt/NewRoot || return 1
 export LIBRARY_PATH=${SYSROOT}/lib64:${SYSROOT}/lib32:${SYSROOT}/lib:${CROSS_PREFIX}/${TARGET}/lib64:${CROSS_PREFIX}/${TARGET}/lib:/usr/lib/:/lib || return 1
 return 0
 }
+
 Cross64EnvCleanUp() {
 set -x
 unset CROSS_PREFIX || return 1
@@ -296,6 +421,7 @@ unset SYSROOT || return 1
 unset LIBRARY_PATH || return 1
 return 0
 }
+
 InstallCross64() {
 set -x
 local Package="${1}" || return 1
@@ -304,6 +430,7 @@ shift 2 || return 1
 InstallEngine "${Package}" "${Format}" "$(grep -c ^processor /proc/cpuinfo)" "For Cross-x86_64" "--target=x86_64-pc-linux-gnu --prefix=/opt/Cross64 --with-sysroot=/opt/NewRoot" "${@}" || return 1
 return 0
 }
+
 InstallCross64J1() {
 set -x
 local Package="${1}" || return 1
@@ -312,6 +439,7 @@ shift 2 || return 1
 InstallEngine "${Package}" "${Format}" '1' "For Cross-x86_64" "--target=x86_64-pc-linux-gnu --prefix=/opt/Cross64 --with-sysroot=/opt/NewRoot" "${@}" || return 1
 return 0
 }
+
 InstallCross64Root() {
 set -x
 local Package="${1}" || return 1
@@ -320,6 +448,7 @@ shift 2 || return 1
 InstallEngine "${Package}" "${Format}" "$(grep -c ^processor /proc/cpuinfo)" "For Cross-x86_64" "--target=x86_64-pc-linux-gnu --prefix=/opt/NewRoot --with-sysroot=/opt/NewRoot" "${@}" || return 1
 return 0
 }
+
 InstallCross64RootJ1() {
 set -x
 local Package="${1}" || return 1
@@ -328,6 +457,7 @@ shift 2 || return 1
 InstallEngine "${Package}" "${Format}" '1' "For Cross-x86_64" "--target=x86_64-pc-linux-gnu --prefix=/opt/NewRoot --with-sysroot=/opt/NewRoot" "${@}" || return 1
 return 0
 }
+
 InstallCross64Alt() {
 set -x
 local Package="${1}" || return 1
@@ -338,6 +468,7 @@ InstallEngine "${Package}" "${Format}" "$(grep -c ^processor /proc/cpuinfo)" "Fo
 Cross64EnvCleanUp || return 1
 return 0
 }
+
 InstallCross64AltJ1() {
 set -x
 local Package="${1}" || return 1
@@ -348,6 +479,7 @@ InstallEngine "${Package}" "${Format}" '1' "For Cross-x86_64" "--host=x86_64-pc-
 Cross64EnvCleanUp || return 1
 return 0
 }
+
 InstallCross64RootAlt() {
 set -x
 local Package="${1}" || return 1
@@ -358,6 +490,7 @@ InstallEngine "${Package}" "${Format}" "$(grep -c ^processor /proc/cpuinfo)" "Fo
 Cross64EnvCleanUp || return 1
 return 0
 }
+
 InstallCross64RootAltJ1() {
 set -x
 local Package="${1}" || return 1
@@ -368,6 +501,7 @@ InstallEngine "${Package}" "${Format}" '1' "For Cross-x86_64" "--host=x86_64-pc-
 Cross64EnvCleanUp || return 1
 return 0
 }
+
 Native64EnvSetup() {
 set -x
 export CROSS_PREFIX=/opt/Cross64 || return 1
@@ -422,6 +556,7 @@ $GPROF --help || return 1
 $ADDR2LINE --help || return 1
 return 0
 }
+
 Native64EnvCleanUp() {
 set -x
 unset CROSS_PREFIX || return 1
@@ -453,6 +588,7 @@ unset GPROF || return 1
 unset ADDR2LINE || return 1
 return 0
 }
+
 InstallNative64() {
 set -x
 local Package="${1}" || return 1
@@ -463,6 +599,7 @@ InstallEngine "${Package}" "${Format}" "$(grep -c ^processor /proc/cpuinfo)" "Fo
 Native64EnvCleanUp || return 1
 return 0
 }
+
 InstallNative64J1() {
 set -x
 local Package="${1}" || return 1
@@ -473,6 +610,7 @@ InstallEngine "${Package}" "${Format}" '1' "For Host-x64" "--prefix=/usr --with-
 Native64EnvCleanUp || return 1
 return 0
 }
+
 InstallNative64Root() {
 set -x
 local Package="${1}" || return 1
@@ -483,6 +621,7 @@ InstallEngine "${Package}" "${Format}" "$(grep -c ^processor /proc/cpuinfo)" "Fo
 Native64EnvCleanUp || return 1
 return 0
 }
+
 InstallNative64RootJ1() {
 set -x
 local Package="${1}" || return 1
@@ -493,6 +632,7 @@ InstallEngine "${Package}" "${Format}" '1' "For Host-x64" "--prefix= --with-sysr
 Native64EnvCleanUp || return 1
 return 0
 }
+
 InstallNative64Cross() {
 set -x
 local Package="${1}" || return 1
@@ -503,6 +643,7 @@ InstallEngine "${Package}" "${Format}" "$(grep -c ^processor /proc/cpuinfo)" "Fo
 Native64EnvCleanUp || return 1
 return 0
 }
+
 InstallNative64CrossJ1() {
 set -x
 local Package="${1}" || return 1
@@ -513,6 +654,7 @@ InstallEngine "${Package}" "${Format}" '1' "For Cross-x86_64-Native" "--prefix=/
 Native64EnvCleanUp || return 1
 return 0
 }
+
 InstallNative64RootCross() {
 set -x
 local Package="${1}" || return 1
@@ -523,6 +665,7 @@ InstallEngine "${Package}" "${Format}" "$(grep -c ^processor /proc/cpuinfo)" "Fo
 Native64EnvCleanUp || return 1
 return 0
 }
+
 InstallNative64RootCrossJ1() {
 set -x
 local Package="${1}" || return 1
@@ -533,6 +676,7 @@ InstallEngine "${Package}" "${Format}" '1' "For Cross-x86_64-Native" "--prefix=/
 Native64EnvCleanUp || return 1
 return 0
 }
+
 InstallNoCheck() {
 set -x
 local Package="${1}" || return 1
@@ -541,6 +685,7 @@ shift 2 || return 1
 InstallEngineNoCheck "${Package}" "${Format}" "$(grep -c ^processor /proc/cpuinfo)" "For Host" "--prefix=/usr" "${@}" || return 1
 return 0
 }
+
 InstallJ1NoCheck() {
 set -x
 local Package="${1}" || return 1
@@ -549,6 +694,7 @@ shift 2 || return 1
 InstallEngineNoCheck "${Package}" "${Format}" '1' "For Host" "--prefix=/usr" "${@}" || return 1
 return 0
 }
+
 InstallRootNoCheck() {
 set -x
 local Package="${1}" || return 1
@@ -557,6 +703,7 @@ shift 2 || return 1
 InstallEngineNoCheck "${Package}" "${Format}" "$(grep -c ^processor /proc/cpuinfo)" "For Host" "--prefix=" "${@}" || return 1
 return 0
 }
+
 InstallRootJ1NoCheck() {
 set -x
 local Package="${1}" || return 1
@@ -565,6 +712,7 @@ shift 2 || return 1
 InstallEngineNoCheck "${Package}" "${Format}" '1' "For Host" "--prefix=" "${@}" || return 1
 return 0
 }
+
 InstallCross64NoCheck() {
 set -x
 local Package="${1}" || return 1
@@ -573,6 +721,7 @@ shift 2 || return 1
 InstallEngineNoCheck "${Package}" "${Format}" "$(grep -c ^processor /proc/cpuinfo)" "For Cross-x86_64" "--target=x86_64-pc-linux-gnu --prefix=/opt/Cross64 --with-sysroot=/opt/NewRoot" "${@}" || return 1
 return 0
 }
+
 InstallCross64J1NoCheck() {
 set -x
 local Package="${1}" || return 1
@@ -581,6 +730,7 @@ shift 2 || return 1
 InstallEngineNoCheck "${Package}" "${Format}" '1' "For Cross-x86_64" "--target=x86_64-pc-linux-gnu --prefix=/opt/Cross64 --with-sysroot=/opt/NewRoot" "${@}" || return 1
 return 0
 }
+
 InstallCross64RootNoCheck() {
 set -x
 local Package="${1}" || return 1
@@ -589,6 +739,7 @@ shift 2 || return 1
 InstallEngineNoCheck "${Package}" "${Format}" "$(grep -c ^processor /proc/cpuinfo)" "For Cross-x86_64" "--target=x86_64-pc-linux-gnu --prefix=/opt/NewRoot --with-sysroot=/opt/NewRoot" "${@}" || return 1
 return 0
 }
+
 InstallCross64RootJ1NoCheck() {
 set -x
 local Package="${1}" || return 1
@@ -597,6 +748,7 @@ shift 2 || return 1
 InstallEngineNoCheck "${Package}" "${Format}" '1' "For Cross-x86_64" "--target=x86_64-pc-linux-gnu --prefix=/opt/NewRoot --with-sysroot=/opt/NewRoot" "${@}" || return 1
 return 0
 }
+
 InstallCross64AltNoCheck() {
 set -x
 local Package="${1}" || return 1
@@ -607,6 +759,7 @@ InstallEngineNoCheck "${Package}" "${Format}" "$(grep -c ^processor /proc/cpuinf
 Cross64EnvCleanUp || return 1
 return 0
 }
+
 InstallCross64AltJ1NoCheck() {
 set -x
 local Package="${1}" || return 1
@@ -617,6 +770,7 @@ InstallEngineNoCheck "${Package}" "${Format}" '1' "For Cross-x86_64" "--host=x86
 Cross64EnvCleanUp || return 1
 return 0
 }
+
 InstallCross64RootAltNoCheck() {
 set -x
 local Package="${1}" || return 1
@@ -627,6 +781,7 @@ InstallEngineNoCheck "${Package}" "${Format}" "$(grep -c ^processor /proc/cpuinf
 Cross64EnvCleanUp || return 1
 return 0
 }
+
 InstallCross64RootAltJ1NoCheck() {
 set -x
 local Package="${1}" || return 1
@@ -637,6 +792,7 @@ InstallEngineNoCheck "${Package}" "${Format}" '1' "For Cross-x86_64" "--host=x86
 Cross64EnvCleanUp || return 1
 return 0
 }
+
 InstallNative64NoCheck() {
 set -x
 local Package="${1}" || return 1
@@ -647,6 +803,7 @@ InstallEngineNoCheck "${Package}" "${Format}" "$(grep -c ^processor /proc/cpuinf
 Native64EnvCleanUp || return 1
 return 0
 }
+
 InstallNative64J1NoCheck() {
 set -x
 local Package="${1}" || return 1
@@ -657,6 +814,7 @@ InstallEngineNoCheck "${Package}" "${Format}" '1' "For Host-x64" "--prefix=/usr 
 Native64EnvCleanUp || return 1
 return 0
 }
+
 InstallNative64RootNoCheck() {
 set -x
 local Package="${1}" || return 1
@@ -667,6 +825,7 @@ InstallEngineNoCheck "${Package}" "${Format}" "$(grep -c ^processor /proc/cpuinf
 Native64EnvCleanUp || return 1
 return 0
 }
+
 InstallNative64RootJ1NoCheck() {
 set -x
 local Package="${1}" || return 1
@@ -677,6 +836,7 @@ InstallEngineNoCheck "${Package}" "${Format}" '1' "For Host-x64" "--prefix= --wi
 Native64EnvCleanUp || return 1
 return 0
 }
+
 InstallNative64CrossNoCheck() {
 set -x
 local Package="${1}" || return 1
@@ -687,6 +847,7 @@ InstallEngineNoCheck "${Package}" "${Format}" "$(grep -c ^processor /proc/cpuinf
 Native64EnvCleanUp || return 1
 return 0
 }
+
 InstallNative64CrossJ1NoCheck() {
 set -x
 local Package="${1}" || return 1
@@ -697,6 +858,7 @@ InstallEngineNoCheck "${Package}" "${Format}" '1' "For Cross-x86_64-Native" "--p
 Native64EnvCleanUp || return 1
 return 0
 }
+
 InstallNative64RootCrossNoCheck() {
 set -x
 local Package="${1}" || return 1
@@ -707,6 +869,7 @@ InstallEngineNoCheck "${Package}" "${Format}" "$(grep -c ^processor /proc/cpuinf
 Native64EnvCleanUp || return 1
 return 0
 }
+
 InstallNative64RootCrossJ1NoCheck() {
 set -x
 local Package="${1}" || return 1
@@ -717,6 +880,7 @@ InstallEngineNoCheck "${Package}" "${Format}" '1' "For Cross-x86_64-Native" "--p
 Native64EnvCleanUp || return 1
 return 0
 }
+
 RemoveEngine() {
 set -x
 local Package="${1}" || return 1
@@ -732,6 +896,7 @@ local DeployCommand="make uninstall" || return 1
 InstallBase "${Package}" "${Format}" "${TitleText}" "${Subfolder}" "${ConfigureCommand}" "${MakeCommand}" "${CheckCommand}" "${DeployCommand}" 'Extracting' 'Configuring' 'Compiling' 'Validating' 'Erasing' 'Cleaning' || return 1
 return 0
 }
+
 Remove() {
 set -x
 local Package="${1}" || return 1
@@ -740,6 +905,7 @@ shift 2 || return 1
 RemoveEngine "${Package}" "${Format}" "For Host"  "--prefix=/usr" "${@}" || return 1
 return 0
 }
+
 RemoveRoot() {
 set -x
 local Package="${1}" || return 1
@@ -748,6 +914,7 @@ shift 2 || return 1
 RemoveEngine "${Package}" "${Format}" "For Host" "--prefix=" "${@}" || return 1
 return 0
 }
+
 RemoveCross64() {
 set -x
 local Package="${1}" || return 1
@@ -756,6 +923,7 @@ shift 2 || return 1
 RemoveEngine "${Package}" "${Format}" "For Cross-x86_64" "--target=x86_64-pc-linux-gnu --prefix=/opt/Cross64" "${@}" || return 1
 return 0
 }
+
 RemoveCross64Root() {
 set -x
 local Package="${1}" || return 1
@@ -764,6 +932,7 @@ shift 2 || return 1
 RemoveEngine "${Package}" "${Format}" "For Cross-x86_64" "--target=x86_64-pc-linux-gnu --prefix=/opt/NewRoot" "${@}" || return 1
 return 0
 }
+
 RemoveCross64Alt() {
 set -x
 local Package="${1}" || return 1
@@ -774,6 +943,7 @@ RemoveEngine "${Package}" "${Format}" "For Cross-x86_64" "--host=x86_64-pc-linux
 Cross64EnvCleanUp || return 1
 return 0
 }
+
 RemoveCross64RootAlt() {
 set -x
 local Package="${1}" || return 1
@@ -784,6 +954,7 @@ RemoveEngine "${Package}" "${Format}" "For Cross-x86_64" "--host=x86_64-pc-linux
 Cross64EnvCleanUp || return 1
 return 0
 }
+
 RemoveNative64() {
 set -x
 local Package="${1}" || return 1
@@ -794,6 +965,7 @@ RemoveEngine "${Package}" "${Format}" "For Host-x64" "--prefix=/usr --with-sysro
 Native64EnvCleanUp || return 1
 return 0
 }
+
 RemoveNative64Root() {
 set -x
 local Package="${1}" || return 1
@@ -804,6 +976,7 @@ RemoveEngine "${Package}" "${Format}" "For Host-x64" "--prefix= --with-sysroot=/
 Native64EnvCleanUp || return 1
 return 0
 }
+
 RemoveNative64Cross() {
 set -x
 local Package="${1}" || return 1
@@ -814,6 +987,7 @@ RemoveEngine "${Package}" "${Format}" "For Host-x64" "--prefix=/opt/Cross64 --wi
 Native64EnvCleanUp || return 1
 return 0
 }
+
 RemoveNative64RootCross() {
 set -x
 local Package="${1}" || return 1
@@ -824,6 +998,7 @@ RemoveEngine "${Package}" "${Format}" "For Host-x64" "--prefix=/opt/NewRoot --wi
 Native64EnvCleanUp || return 1
 return 0
 }
+
 Check() {
 set -x
 local Package="${1}" || return 1
@@ -838,6 +1013,7 @@ local DeployCommand="nop" || return 1
 InstallBase "${Package}" "${Format}" "${TitleText}" "${Subfolder}" "${ConfigureCommand}" "${MakeCommand}" "${CheckCommand}" "${DeployCommand}" 'Extracting' 'Configuring' 'Compiling' 'Validating' 'Deploying' 'Cleaning' || return 1
 return 0
 }
+
 CheckMake() {
 set -x
 local Package="${1}" || return 1
@@ -852,6 +1028,7 @@ local DeployCommand='killall -9 -e simpletext || true; /Applications/SimpleText.
 InstallBase "${Package}" "${Format}" "${TitleText}" "${Subfolder}" "${ConfigureCommand}" "${MakeCommand}" "${CheckCommand}" "${DeployCommand}" 'Extracting' 'Configuring' 'Compiling' 'Validating' 'Deploying' 'Cleaning' || return 1
 return 0
 }
+
 KernelInstall() {
 set -x
 local Package="linux-${1}" || return 1
@@ -886,12 +1063,13 @@ sed -i 's/^default=[0-9]\+/default=0/' '/boot/grub/grub.conf' || return 1
 cd /workspace || return 1
 return 0
 }
+
 EnterStage() {
 set -x
 echo "[Desktop Entry]" > '/root/Desktop/v3.5 Update Combo/scripts/next.desktop' || return 1
 echo "Encoding=UTF-8" >> '/root/Desktop/v3.5 Update Combo/scripts/next.desktop' || return 1
 echo "Type=Application" >> '/root/Desktop/v3.5 Update Combo/scripts/next.desktop' || return 1
-echo "Exec=konsole -e script -f -c 'set -x; cd /root/Desktop/v3.5\ Update\ Combo; ./scripts/${1}.sh' /root/Desktop/v3.5\ Update\ Combo/logs/Stage${1}.txt" >> '/root/Desktop/v3.5 Update Combo/scripts/next.desktop' || return 1
+echo "Exec=konsole -e script -f -c 'set -x; cd /root/Desktop/v3.5\\ Update\\ Combo; ./scripts/${1}.sh' /root/Desktop/v3.5\\ Update\\ Combo/logs/Stage${1}.txt" >> '/root/Desktop/v3.5 Update Combo/scripts/next.desktop' || return 1
 echo "Terminal=false" >> '/root/Desktop/v3.5 Update Combo/scripts/next.desktop' || return 1
 echo "Name=v3.5 Update Combo" >> '/root/Desktop/v3.5 Update Combo/scripts/next.desktop' || return 1
 echo "Categories=Applocation" >> '/root/Desktop/v3.5 Update Combo/scripts/next.desktop' || return 1
@@ -913,6 +1091,7 @@ echo -e "\nRebooting now... "
 sleep 1
 reboot
 }
+
 export PATH=/opt/Cross64/bin:/opt/NewRoot/usr/bin:/opt/NewRoot/usr/sbin:$PATH
 trap 'operationerror' ERR
 set +e
