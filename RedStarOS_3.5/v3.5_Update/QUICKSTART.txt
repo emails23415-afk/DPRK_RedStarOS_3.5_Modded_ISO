@@ -1,0 +1,117 @@
+╔═══════════════════════════════════════════════════════════════════════╗
+║                                                                       ║
+║         RedStarOS 3.5 Update - QUICK START GUIDE                     ║
+║                                                                       ║
+╚═══════════════════════════════════════════════════════════════════════╝
+
+⚠️  WARNINGS:
+   • Use ONLY in isolated virtual machines
+   • NEVER on real hardware
+   • Disconnect from all networks
+   • Red Star OS contains surveillance software
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+📋 BEFORE YOU START:
+
+   1. Enable root access:
+      $ /usr/sbin/rootsetting
+      
+   2. Verify root works:
+      $ su - root
+      $ whoami    # Should show: root
+      
+   3. Check disk space (need 10GB free):
+      $ df -h /
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+🚀 INSTALLATION (3 SIMPLE STEPS):
+
+   STEP 1: Navigate to folder
+   ═══════════════════════════════════════════════════════════════════
+   $ cd '/root/Desktop/v3.5 Update Combo/'
+   
+
+   STEP 2: Make scripts executable
+   ═══════════════════════════════════════════════════════════════════
+   $ chmod +x scripts/*.sh
+   
+
+   STEP 3: Start installation (choose ONE method)
+   ═══════════════════════════════════════════════════════════════════
+   
+   Method A - Automatic (Easiest):
+   $ cd scripts/
+   $ sudo ./1.sh
+   
+   Method B - Desktop Icon:
+   Double-click "Install.desktop" on your desktop
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+⏱️  EXPECTED DURATION:
+   • Installation: 2-6 hours (depends on CPU)
+   • Automatic reboot after completion
+   • Stage 2: 5 minutes after reboot
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+✅ VERIFY INSTALLATION:
+
+   After final reboot, check:
+   
+   $ uname -r
+   # Should show: 5.4.300 or 4.19.325
+   
+   $ gcc --version  
+   # Should show: gcc (GCC) 6.5.0
+   
+   $ uname -m
+   # Should show: x86_64
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+🔧 COMMON PROBLEMS:
+
+   Problem: "Permission denied" creating /bin/pkgtool
+   Solution: The installer automatically handles this. Just continue.
+   
+   Problem: System reboots unexpectedly  
+   Solution: Run this BEFORE installation:
+            $ killall -9 securityd opprc scnprc
+   
+   Problem: Installation seems frozen
+   Solution: It's probably compiling GCC (takes 1-2 hours).
+            Check with: $ top
+            Look for 'make' or 'gcc' using CPU.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+📖 FULL DOCUMENTATION:
+
+   See README.md for complete guide including:
+   • Detailed troubleshooting
+   • Technical details
+   • Security information
+   • FAQ
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+⚡ THAT'S IT!
+
+   The installation is fully automatic. Just start it and wait.
+   System will reboot when done.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Credits:
+  • Original v3.5 Update Combo team
+  • RedStar Tools by takeshixx  
+  • CCC Red Star OS research
+  • Community contributors
+
+For educational and research purposes only.
+Use responsibly. Stay safe.
+
+╚═══════════════════════════════════════════════════════════════════════╝
